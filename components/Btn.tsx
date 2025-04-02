@@ -24,7 +24,7 @@ const Btn = ({
           : "bg-white text-black hover:bg-gray-100"
       } transition-colors duration-300 manrope rounded-full ${
         size === "small"
-          ? "px-3 py-1 text-sm"
+          ? "px-4 py-2 text-sm"
           : size === "large"
           ? "px-6 py-3 text-lg"
           : "px-4 py-2 text-base"

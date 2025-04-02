@@ -1,4 +1,4 @@
-import Btn from "@/component/Btn";
+import Btn from "@/components/Btn";
 import Image from "next/image";
 import React from "react";
 
