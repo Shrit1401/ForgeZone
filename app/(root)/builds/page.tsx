@@ -1,5 +1,5 @@
 import Btn from "@/components/Btn";
-import BuildsCard from "@/components/Builds/BuildsCard";
+import BuildsCard from "@/components/builds/BuildsCard";
 import React from "react";
 
 const BuildsPage = () => {

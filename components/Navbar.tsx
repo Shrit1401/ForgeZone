@@ -4,7 +4,7 @@ import logo from "@/public/logo.png";
 import Image from "next/image";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/16/solid";
 import Btn from "./Btn";
-import { motion, AnimatePresence } from "motion/react";
+import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 
 const Navbar = () => {
@@ -14,7 +14,7 @@ const Navbar = () => {
     { name: "work", link: "/work" },
     {
       name: "discord",
-      link: "https://discord.gg/yourserver",
+      link: "https://discord.gg/e3RfmAVAXV",
       target: "_blank",
     },
   ];
@@ -86,7 +86,13 @@ const Navbar = () => {
             whileHover={{ scale: 1.05 }}
             className="hover:text-white/80 transition-all duration-200 md:p-0"
           >
-            <a href={link.link}>{link.name}</a>
+            <Link
+              href={link.link}
+              target={link.target}
+              className="flex items-center gap-2"
+            >
+              {link.name}
+            </Link>
           </motion.li>
         ))}
       </ul>
@@ -98,7 +104,7 @@ const Navbar = () => {
         whileHover={{ scale: 1.05 }}
         className="hidden md:block"
       >
-        <Btn title="Start" link="#" />
+        <Btn title="Start" link="/start" />
       </motion.div>
     </nav>
   );

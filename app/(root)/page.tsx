@@ -6,7 +6,9 @@ import Link from "next/link";
 const Home = () => {
   return (
     <div>
-      <section className="h-screen w-full sm:bg-[url('https://i.imgur.com/owFuEkI.jpeg')] bg-[url('https://i.imgur.com/0OpDE09.png')] flex flex-col items-center justify-center grayscale-100 bg-cover bg-center bg-no-repeat relative">
+      {/* TODO  https://i.imgur.com/Kw9TRZI.png or https://i.imgur.com/owFuEkI.png */}
+
+      <section className="h-screen w-full sm:bg-[url('https://i.imgur.com/JDm2v1s.png')] bg-[url('https://i.imgur.com/0OpDE09.png')] flex flex-col items-center justify-center grayscale-100 bg-cover bg-center bg-no-repeat relative">
         <div className="absolute inset-0 bg-[radial-gradient(circle,transparent_70%,rgba(0,0,0,1)_140%)] z-0 bg-fixed" />
         <Link
           href="/notes/raise"
