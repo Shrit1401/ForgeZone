@@ -1,0 +1,128 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// User
+
+model User {
+  id              String          @id @default(cuid())
+  name            String?
+  email           String          @unique
+  username        String          @unique
+  pfp             String
+  oneLiner        String?
+  location        String?
+  whatworkingrn   String?
+  internshipOrJob InternshipOrJob
+  projectsNum     Int
+  socials         Social?
+  projects        ProjectUser[]
+}
+
+enum InternshipOrJob {
+  internship
+  job
+}
+
+model Social {
+  id       String  @id @default(cuid())
+  linkedIn String?
+  github   String?
+  twitter  String?
+  userId   String  @unique
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model ProjectUser {
+  id                 String    @id @default(cuid())
+  projectname        String
+  isDiscordConnected Boolean   @default(false)
+  isTwitterShared    Boolean   @default(false)
+  current            Int
+  total              Int
+  userId             String
+  messages           Message[]
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Message {
+  id            String @id @default(cuid())
+  message       String
+  target        String
+  projectUserId String
+
+  project ProjectUser @relation(fields: [projectUserId], references: [id])
+}
+
+// Project
+
+model SingleProject {
+  id             String  @id @default(cuid())
+  name           String
+  oneLiner       String
+  discordRole    String
+  twitterMessage String
+  isFeatured     Boolean @default(false)
+  normalImg      String
+  activeImg      String
+  // timeToGoLive   DateTime? future implementation
+  projectSlug    String  @unique
+  stepsLength    Int
+  steps          Step[]
+}
+
+model Step {
+  id        String     @id @default(cuid())
+  name      String
+  projectId String
+  stepItems StepItem[]
+
+  project SingleProject @relation(fields: [projectId], references: [id])
+}
+
+model StepItem {
+  id                 String @id @default(cuid())
+  text               String
+  slug               String
+  sourceUrl          String
+  requirementMessage String
+  stepId             String
+
+  step Step @relation(fields: [stepId], references: [id])
+}
+
+// model Waitlist { future implementation
+//   id        String   @id @default(cuid())
+//   username  String
+//   email     String
+//   project   String
+//   current   String
+//   target    String
+// }
+
+// Notes
+
+model Note {
+  id          String   @id @default(cuid())
+  title       String
+  bgImage     String
+  userPfp     String
+  createdAt   DateTime @default(now())
+  tag         String
+  cardImage   String
+  markdownUrl String
+}

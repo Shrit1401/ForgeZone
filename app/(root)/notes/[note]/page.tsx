@@ -1,3 +1,5 @@
+import CourseMarkdown from "@/components/build/CourseMarkdown";
+import NoteMarkdown from "@/components/notes/NoteMarkdown";
 import React from "react";
 
 const NotePage = () => {
@@ -21,7 +23,7 @@ const NotePage = () => {
       </section>
       <section className="relative z-10 mt-0 sm:mt-[60vh] backdrop-blur-3xl bg-black/40 px-12 py-40 text-lg flex justify-center min-h-screen">
         <div className="max-w-[40rem] w-full flex flex-col gap-10 py-5">
-          <h2 className="manrope text-2xl font-[800] text-white line-height-10">
+          {/* <h2 className="manrope text-2xl font-[800] text-white line-height-10">
             ChatGPT has taken the tech world by storm and for good reason! It's
             impressive and the conversations feel natural. Let's connect it to
             the most popular messaging app in the world.
@@ -55,7 +57,9 @@ const NotePage = () => {
           <img
             src="https://i.imgur.com/rlkfSCX.png"
             className="rounded-lg shadow-lg"
-          />
+          /> */}
+
+          <NoteMarkdown url="https://raw.githubusercontent.com/buildspace/buildspace-projects/refs/heads/main/GPT3_Writer/en/Section_3/Lesson_1_Setup_chrome_extension.md" />
         </div>
       </section>
     </div>

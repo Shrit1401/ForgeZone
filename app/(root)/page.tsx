@@ -27,7 +27,9 @@ const Home = () => {
         </p>
         <Btn title="Explore" className="mt-8" link="#" size="large" />
       </section>
-      <section className="h-screen w-full bg-fixed bg-[url('https://i.imgur.com/QlAPkeP.jpeg')] flex flex-col items-center justify-center bg-cover bg-center bg-no-repeat relative">
+      <section className="h-screen w-full bg-fixed bg-[url('https://i.imgur.com/ZDaS5wV.png')] flex flex-col items-center justify-center bg-cover bg-center bg-no-repeat relative">
+        {/* https://i.imgur.com/QlAPkeP.jpeg */}
+        <div className="absolute inset-0 bg-[rgba(0,0,0,.2)] z-0 bg-fixed" />
         <h1 className="text-5xl sm:text-7xl manrope font-[800] text-white text-center z-10 relative">
           Build cutting edge <br /> products in various <br /> domains.
         </h1>
