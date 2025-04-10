@@ -1,6 +1,6 @@
 "use server";
 import db from "../db";
-import { SingleProject, Step } from "@/types/project";
+import { SingleProject, Step } from "@/types/project.types";
 
 export const createProject = async (project: SingleProject, steps: Step[]) => {
   try {
