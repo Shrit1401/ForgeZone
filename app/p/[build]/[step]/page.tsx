@@ -17,7 +17,7 @@ import RequirementDialog from "@/components/build/RequirementDialog";
 const StepHome = () => {
   const percentage = 75;
   return (
-    <div className="mt-[4rem] mb-[6rem] h-screen flex ">
+    <div className="mt-[5rem] mb-[6rem] h-screen flex ">
       <section className="flex w-full">
         {/* Sidebar */}
         <Sidebar />

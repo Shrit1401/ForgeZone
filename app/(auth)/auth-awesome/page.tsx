@@ -15,7 +15,7 @@ const LoginPage = () => {
       error,
     } = await supabase.auth.getUser();
     if (error) {
-      console.error("Error fetching user:", error);
+      console.log("Error fetching user:", error);
       return;
     }
     if (user) {
@@ -23,7 +23,7 @@ const LoginPage = () => {
       if (res) {
         setLoading(false);
       } else {
-        console.error("Error creating user");
+        console.log("Error creating user");
         setLoading(false);
       }
     }

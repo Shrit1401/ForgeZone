@@ -17,8 +17,14 @@ import {
 
 const BuildHome = () => {
   const percentage = 75;
+
+  const twitterClicked = async () => {
+    const twitterText = encodeURIComponent("hello/n ice to meet you");
+    const twitterUrl = `https://twitter.com/intent/tweet?text=${twitterText}`;
+    window.open(twitterUrl, "_blank");
+  };
   return (
-    <div className="mt-[4rem] h-screen flex ">
+    <div className="mt-[5rem] h-screen flex ">
       <section className="flex w-full">
         <Sidebar />
 
@@ -67,7 +73,7 @@ const BuildHome = () => {
               <Btn
                 title="Share on Twitter"
                 className="w-fit"
-                link={""}
+                onClick={twitterClicked}
                 sideIcon={<FaTwitter />}
               />
             </div>

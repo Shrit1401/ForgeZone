@@ -9,16 +9,16 @@ export type UserType = {
   whatworkingrn: string | undefined;
   internshipOrJob: InternshipOrJob;
   projectsNumber: number;
-  social: Social | undefined;
+  socials: Socials | undefined;
   projects: ProjectUser[];
 };
 
-enum InternshipOrJob {
+export enum InternshipOrJob {
   internship,
   job,
 }
 
-type Social = {
+type Socials = {
   twitter: string | undefined;
   github: string | undefined;
   linkedIn: string | undefined;
