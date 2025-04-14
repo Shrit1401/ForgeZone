@@ -46,6 +46,20 @@ export async function getUserById(id: string) {
       },
     });
 
+    const projectsData = await db.projectUser.findMany({
+      where: {
+        userId: id,
+      },
+    });
+
+    const messagedata = await db.message.findMany({
+      where: {
+        projectUserId: {
+          in: projectsData.map((project) => project.id),
+        },
+      },
+    });
+
     const user: UserType = {
       id: userData?.id || "",
       name: userData?.name || "",
@@ -65,8 +79,22 @@ export async function getUserById(id: string) {
         linkedIn: socialsData?.linkedIn || "",
         twitter: socialsData?.twitter || "",
       },
-      // add projects here
-      projects: [],
+      projects:
+        projectsData.map((projectUser) => ({
+          projectname: projectUser.projectname,
+          isDiscordConnected: projectUser.isDiscordConnected,
+          isTwitterShared: projectUser.isTwitterShared,
+          total: projectUser.total,
+          current: projectUser.current,
+          userId: projectUser.userId,
+          messages: messagedata
+            .filter((message) => message.projectUserId === projectUser.id)
+            .map((message) => ({
+              id: message.id,
+              message: message.message,
+              target: message.target,
+            })),
+        })) || [],
     };
     return user;
   } catch (error) {

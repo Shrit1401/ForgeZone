@@ -69,7 +69,7 @@ export default function ProfilePictureUpload({
     // Simulate API call to update profile picture
     try {
       const filepath = `${userId}/pfp_${Date.now()}.png`;
-      const { data, error } = await supabaseClient.storage
+      const { error } = await supabaseClient.storage
         .from("pfp")
         .upload(filepath, imageFile);
 

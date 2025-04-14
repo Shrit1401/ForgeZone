@@ -1,10 +1,11 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { TrophyIcon, XCircleIcon } from "@heroicons/react/16/solid";
 import { FaDiscord, FaTwitter } from "react-icons/fa";
 import Btn from "@/components/Btn";
 import Sidebar from "@/components/build/Sidebar";
+import { useParams } from "next/navigation";
 
 import {
   Breadcrumb,
@@ -14,19 +15,57 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { getBuildBySlug } from "@/lib/build/build";
+import { SingleProject } from "@/types/project.types";
+import BuildHomeSkeleton from "@/components/skeletons/buildHomeSkeleton";
 
 const BuildHome = () => {
-  const percentage = 75;
+  const [build, setBuild] = useState<SingleProject>();
+  const [loading, setLoading] = useState(true);
+  const params = useParams();
+  const buildParam = params.build as string;
+
+  useEffect(() => {
+    const fetchBuild = async () => {
+      setLoading(true);
+      try {
+        await getBuildBySlug(buildParam, setBuild);
+      } catch (error) {
+        console.error("Error fetching build:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBuild();
+  }, [buildParam]);
+
+  console.log("Build Param: ", build);
+
+  const percentage = 50;
 
   const twitterClicked = async () => {
     const twitterText = encodeURIComponent("hello/n ice to meet you");
     const twitterUrl = `https://twitter.com/intent/tweet?text=${twitterText}`;
     window.open(twitterUrl, "_blank");
   };
+
+  // If loading, render the skeleton component
+  if (loading) {
+    return <BuildHomeSkeleton />;
+  }
+
+  // Render the actual content when data is loaded
   return (
-    <div className="mt-[5rem] h-screen flex ">
+    <div className="mt-[5rem] h-screen flex">
       <section className="flex w-full">
-        <Sidebar />
+        <Sidebar
+          steps={build?.steps || []}
+          image={
+            build?.activeImg ||
+            "https://raw.githubusercontent.com/Shrit1401/Supabase-CRUD/refs/heads/FORGEZONE/public/image.png"
+          }
+        />
 
         <div className="left-[20%] h-screen border-l fixed border-dashed border-white/20" />
         <div className="w-full mt-[4rem] fixed top-0 border-t border-dashed z-[999] border-white/20" />

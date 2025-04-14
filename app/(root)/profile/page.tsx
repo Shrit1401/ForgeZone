@@ -22,22 +22,19 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-
-import { z } from "zod";
-
-import { Skeleton } from "@/components/ui/skeleton";
-
+import { Progress } from "@/components/ui/progress";
 import { FaLinkedinIn, FaTwitter } from "react-icons/fa";
 import { FaGithub } from "react-icons/fa6";
 import ProfilePictureUpload from "@/components/profile/ProfilePictureUpload";
-import { Progress } from "@/components/ui/progress";
 import { updateUser } from "@/lib/auth/auth.server";
+import ProfileSkeleton from "@/components/skeletons/profileSkeleton";
 
 export default function EditProfilePage() {
   const router = useRouter();
   const [user, setUser] = useState<UserType | null | undefined>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [completion, setCompletion] = useState<number>(0);
+  const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
     name: "",
     username: "",
@@ -51,7 +48,19 @@ export default function EditProfilePage() {
   });
 
   useEffect(() => {
-    getLoggedInUser(setUser);
+    const fetchUserData = async () => {
+      setLoading(true);
+      try {
+        await getLoggedInUser(setUser);
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+        toast.error("Failed to load profile data");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserData();
   }, []);
 
   useEffect(() => {
@@ -76,67 +85,8 @@ export default function EditProfilePage() {
     }
   }, [user]);
 
-  if (!user) {
-    return (
-      <div className="mt-[6rem] mx-auto max-w-7xl gap-5 px-4 mb-10 flex justify-between">
-        <div className="w-[70%]">
-          <Skeleton className="h-10 w-64 mb-6" />
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <Skeleton className="h-7 w-40" />
-              </CardHeader>
-              <CardContent className="flex justify-center">
-                <Skeleton className="h-32 w-32 rounded-full" />
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <Skeleton className="h-7 w-40" />
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {[1, 2, 3, 4, 5].map((i) => (
-                  <div key={i} className="space-y-2">
-                    <Skeleton className="h-4 w-24" />
-                    <Skeleton className="h-10 w-full" />
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <Skeleton className="h-7 w-40" />
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="space-y-2">
-                    <Skeleton className="h-4 w-24" />
-                    <Skeleton className="h-10 w-full" />
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-
-        <div className="w-[30%]">
-          <Skeleton className="h-10 w-40 mb-6" />
-          <Card className="mb-6 bg-transparent border-dotted border-4">
-            <CardContent className="flex justify-center py-6">
-              <Skeleton className="h-32 w-32 rounded-full" />
-            </CardContent>
-            <CardContent className="space-y-4 py-6">
-              <Skeleton className="h-6 w-32" />
-              <Skeleton className="h-4 w-full" />
-              <Skeleton className="h-4 w-40" />
-              <Skeleton className="h-4 w-24" />
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    );
+  if (loading || !user) {
+    return <ProfileSkeleton />;
   }
 
   const handleChange = (

@@ -40,7 +40,7 @@ const BuildsCard = ({
               type="outline"
               size="small"
               className="py-1 px-4 text-sm rounded-full opacity-70 group-hover:opacity-100 transition-opacity"
-              link={link}
+              link={`p/${link}`}
             />
           </div>
         </div>
