@@ -113,7 +113,7 @@ export default function CreateSingleProject() {
       await createProject(projectData, form.steps);
       console.log("Project created successfully");
     } catch (error) {
-      console.error("Error creating project:", error);
+      console.log("Error creating project:", error);
     }
   };
 

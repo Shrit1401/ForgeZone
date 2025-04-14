@@ -15,6 +15,8 @@ import {
 } from "@/components/ui/dialog";
 import { Upload, X } from "lucide-react";
 import { toast } from "sonner";
+import { supabaseClient } from "@/supabase/client";
+import { updatePfp } from "@/lib/auth/auth.server";
 type ProfilePictureUploadProps = {
   userId: string;
 };
@@ -25,6 +27,7 @@ export default function ProfilePictureUpload({
   const [isOpen, setIsOpen] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -48,6 +51,9 @@ export default function ProfilePictureUpload({
       return;
     }
 
+    // Store the file
+    setImageFile(file);
+
     const reader = new FileReader();
     reader.onload = () => {
       setPreview(reader.result as string);
@@ -56,27 +62,43 @@ export default function ProfilePictureUpload({
   };
 
   const handleUpload = async () => {
-    if (!preview) return;
+    if (!preview || !imageFile) return;
 
     setIsUploading(true);
 
     // Simulate API call to update profile picture
     try {
-      // In a real app, you would upload the file to your server/storage here
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const filepath = `${userId}/pfp_${Date.now()}.png`;
+      const { data, error } = await supabaseClient.storage
+        .from("pfp")
+        .upload(filepath, imageFile);
+
+      if (error) throw error;
 
       toast.success("Profile picture updated successfully", {
         description: "Your profile picture has been updated successfully",
       });
 
-      // Close dialog and reset state
+      const pfpUrl = supabaseClient.storage.from("pfp").getPublicUrl(filepath)
+        .data.publicUrl;
+      const res = await updatePfp(userId, pfpUrl);
+      if (!res) {
+        toast.error("Error updating profile picture in database", {
+          description: "Please try again.",
+        });
+        return;
+      }
+      toast.success("Profile picture updated in database", {
+        description: "Your profile picture has been updated in the database",
+      });
+
+      window.location.reload();
+
       setIsOpen(false);
       setPreview(null);
-
-      // In a real app, you would update the user's profile picture in the UI
-      // This could be done through a server action, state management, etc.
+      setImageFile(null);
     } catch (error) {
-      console.error("Error updating profile picture:", error);
+      console.log("Error updating profile picture:", error);
       toast.error("Error updating profile picture", {
         description:
           "There was an error updating your profile picture. Please try again.",
@@ -88,6 +110,7 @@ export default function ProfilePictureUpload({
 
   const clearSelection = () => {
     setPreview(null);
+    setImageFile(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }

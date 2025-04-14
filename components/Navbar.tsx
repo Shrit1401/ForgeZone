@@ -56,7 +56,7 @@ const Navbar = () => {
   return (
     <nav
       className="fixed top-0 left-0 w-full backdrop-blur-xl bg-opacity-80 bg-[rgba(0,0,0,0.2)] px-4 sm:px-6 py-4 flex 
-      justify-between items-center z-[996]"
+      justify-around items-center z-[996]"
     >
       <motion.a
         href="/"

@@ -1,14 +1,11 @@
-import { createClient } from "@/supabase/client";
 import { UserType } from "@/types/user.types";
 import { createUser, getUserById } from "./auth.server";
-import { User } from "@supabase/supabase-js";
+import { supabaseClient } from "@/supabase/client";
 
 const url = process.env.NEXT_URL || "http://localhost:3000";
 
-const supabase = createClient();
-
 export async function signInWithEmail(email: string) {
-  const { data, error } = await supabase.auth.signInWithOtp({
+  const { data, error } = await supabaseClient.auth.signInWithOtp({
     email: email,
     options: {
       shouldCreateUser: true,
@@ -17,7 +14,7 @@ export async function signInWithEmail(email: string) {
   });
 
   if (error) {
-    console.error("Error signing in:", error);
+    console.log("Error signing in:", error);
     return null;
   }
 
@@ -30,7 +27,7 @@ export const getLoggedInUser = async (
   if (setLoading) setLoading(true);
 
   try {
-    const { data, error } = await supabase.auth.getUser();
+    const { data, error } = await supabaseClient.auth.getUser();
     if (error) {
       console.log("Error fetching user:", error.message);
       setUser(null);
@@ -51,7 +48,7 @@ export const getLoggedInUser = async (
       setUser(newUser ?? null);
     }
   } catch (err) {
-    console.error("Unexpected error in getLoggedInUser:", err);
+    console.log("Unexpected error in getLoggedInUser:", err);
     setUser(null);
   } finally {
     if (setLoading) setLoading(false);
@@ -59,9 +56,9 @@ export const getLoggedInUser = async (
 };
 
 export const userSignOut = async () => {
-  const { error } = await supabase.auth.signOut();
+  const { error } = await supabaseClient.auth.signOut();
   if (error) {
-    console.error("Error signing out:", error);
+    console.log("Error signing out:", error);
     return null;
   }
   return true;
@@ -72,7 +69,7 @@ export const getUserCompletetion = async (
   setPercentage: React.Dispatch<React.SetStateAction<number>>
 ) => {
   if (!user) {
-    console.error("User is null or undefined");
+    console.log("User is null or undefined");
     return 0;
   }
   const requiredFields: (keyof UserType)[] = [

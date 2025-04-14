@@ -34,7 +34,7 @@ export const createProject = async (project: SingleProject, steps: Step[]) => {
     });
     return res;
   } catch (error) {
-    console.error("Error creating project:", error);
+    console.log("Error creating project:", error);
     throw new Error("Failed to create project");
   }
 };

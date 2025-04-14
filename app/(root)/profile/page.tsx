@@ -1,6 +1,6 @@
 "use client";
 import { getLoggedInUser, getUserCompletetion } from "@/lib/auth/auth";
-import { UserType } from "@/types/user.types";
+import { InternshipOrJob, UserType } from "@/types/user.types";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -23,10 +23,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 
-enum LookingFor {
-  JOB = "job",
-  INTERNSHIP = "internship",
-}
+import { z } from "zod";
 
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -34,6 +31,7 @@ import { FaLinkedinIn, FaTwitter } from "react-icons/fa";
 import { FaGithub } from "react-icons/fa6";
 import ProfilePictureUpload from "@/components/profile/ProfilePictureUpload";
 import { Progress } from "@/components/ui/progress";
+import { updateUser } from "@/lib/auth/auth.server";
 
 export default function EditProfilePage() {
   const router = useRouter();
@@ -46,7 +44,7 @@ export default function EditProfilePage() {
     oneLiner: "",
     location: "",
     whatworkingrn: "",
-    internshipOrJob: LookingFor.INTERNSHIP as LookingFor,
+    internshipOrJob: InternshipOrJob.internship as InternshipOrJob,
     linkedIn: "",
     github: "",
     twitter: "",
@@ -69,7 +67,8 @@ export default function EditProfilePage() {
         location: user.location || "",
         whatworkingrn: user.whatworkingrn || "",
         internshipOrJob:
-          (user.internshipOrJob as unknown as LookingFor) || LookingFor.JOB,
+          (user.internshipOrJob as unknown as InternshipOrJob) ||
+          InternshipOrJob.job,
         linkedIn: user.socials?.linkedIn || "",
         github: user.socials?.github || "",
         twitter: user.socials?.twitter || "",
@@ -150,24 +149,49 @@ export default function EditProfilePage() {
   const handleSelectChange = (value: string) => {
     setFormData((prev) => ({
       ...prev,
-      internshipOrJob: value as LookingFor,
+      internshipOrJob: value as unknown as InternshipOrJob,
     }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
+    if (!user) return;
     e.preventDefault();
     setIsSubmitting(true);
 
     try {
-      // Simulate API call to update profile
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const userFinal: UserType = {
+        id: user.id,
+        name: formData.name,
+        email: user.email,
+        username: user.username,
+        pfp: user.pfp,
+        oneLiner: formData.oneLiner,
+        location: formData.location,
+        whatworkingrn: formData.whatworkingrn,
+        internshipOrJob: InternshipOrJob.internship,
+        projectsNumber: user.projectsNumber,
+        socials: {
+          twitter: formData.twitter,
+          github: formData.github,
+          linkedIn: formData.linkedIn,
+        },
+        projects: user.projects,
+      };
+
+      const res = await updateUser(userFinal);
+      if (!res) {
+        toast.error("Error updating profile", {
+          description: "There was an error updating your profile.",
+        });
+        return;
+      }
+      setUser(res);
 
       toast.success("Profile updated", {
         description: "Your profile has been updated successfully",
       });
 
-      // Navigate back to profile page
-      router.push("/profile");
+      window.location.reload();
     } catch (error) {
       toast.error("Error updating profile", {
         description:
@@ -270,13 +294,13 @@ export default function EditProfilePage() {
                 </div>
 
                 <div className="grid gap-2">
-                  <Label htmlFor="internshipOrJob">LookingFor</Label>
+                  <Label htmlFor="internshipOrJob">You're Looking For</Label>
                   <Select
-                    value={formData.internshipOrJob}
+                    value={formData.internshipOrJob.toString()}
                     onValueChange={handleSelectChange}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select your LookingFor" />
+                      <SelectValue placeholder="Select your InternshipOrJob" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="job">Full-time Job</SelectItem>
@@ -423,7 +447,7 @@ export default function EditProfilePage() {
               </div>
               <div>
                 <span className="text-xs px-2 py-1 bg-secondary rounded-full border border-dotted">
-                  {formData.internshipOrJob === LookingFor.JOB
+                  {formData.internshipOrJob === InternshipOrJob.job
                     ? "Looking for a job"
                     : "Looking for an internship"}
                 </span>

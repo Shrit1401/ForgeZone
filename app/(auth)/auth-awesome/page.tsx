@@ -1,11 +1,10 @@
 "use client";
 import Btn from "@/components/Btn";
 import { createUser } from "@/lib/auth/auth.server";
-import { createClient } from "@/supabase/client";
+import { supabaseClient } from "@/supabase/client";
 import { useEffect, useState } from "react";
 
 const LoginPage = () => {
-  const supabase = createClient();
   const [loading, setLoading] = useState<boolean>(false);
 
   const handleMagicLinkLogin = async () => {
@@ -13,7 +12,7 @@ const LoginPage = () => {
     const {
       data: { user },
       error,
-    } = await supabase.auth.getUser();
+    } = await supabaseClient.auth.getUser();
     if (error) {
       console.log("Error fetching user:", error);
       return;

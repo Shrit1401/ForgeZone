@@ -16,7 +16,7 @@ const LoginPage = () => {
       console.log("Login successful:", res);
       setSuccessfulLogin(true);
     } else {
-      console.error("Login failed");
+      console.log("Login failed");
       setSuccessfulLogin(false);
     }
     setLoading(false);
