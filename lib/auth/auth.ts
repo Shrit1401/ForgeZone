@@ -1,8 +1,9 @@
-import { UserType } from "@/types/user.types";
-import { createUser, getUserById } from "./auth.server";
+import { ProjectUser, UserType } from "@/types/user.types";
+import { createUser, getUserById, updateUserProject } from "./auth.server";
 import { supabaseClient } from "@/supabase/client";
+import { SingleProject } from "@/types/project.types";
 
-const url = process.env.NEXT_URL || "http://localhost:3000";
+const url = process.env.NEXT_PUBLIC_NEXT_URL || "http://localhost:3000";
 
 export async function signInWithEmail(email: string) {
   const { data, error } = await supabaseClient.auth.signInWithOtp({
@@ -99,4 +100,43 @@ export const getUserCompletetion = async (
 
   setPercentage(completionPercentage);
   return completionPercentage;
+};
+
+export const getLoggedInUserWithProject = async (
+  setUser: React.Dispatch<React.SetStateAction<UserType | null | undefined>>,
+  setLoading?: React.Dispatch<React.SetStateAction<boolean>>,
+  projectId?: string
+) => {
+  setLoading && setLoading(true);
+  // TODO: write this function
+};
+
+export const updateUserBuild = async (
+  userId: string,
+  build: SingleProject,
+  setLoading?: React.Dispatch<React.SetStateAction<boolean>>,
+  DiscordConnection?: boolean,
+  TwitterConnection?: boolean,
+  current?: "Increase"
+) => {
+  if (setLoading) setLoading(true);
+
+  try {
+    const res = await updateUserProject(
+      userId,
+      build,
+      DiscordConnection,
+      TwitterConnection,
+      current
+    );
+    if (res) {
+      return res;
+    } else {
+      console.log("Error updating user build");
+      return null;
+    }
+  } catch (error) {
+    console.log("Error updating user build:", error);
+    return null;
+  }
 };

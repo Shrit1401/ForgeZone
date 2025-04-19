@@ -20,13 +20,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const Navbar = () => {
-  const [user, setUser] = React.useState<UserType | null>();
+  const [user, setUser] = React.useState<UserType | null | undefined>(null);
   const [loading, setLoading] = React.useState(true);
+
   useEffect(() => {
     const getUser = async () => {
       await getLoggedInUser(setUser, setLoading);
     };
-    setTimeout(getUser, 100);
+    getUser();
   }, []);
 
   const handleSignOut = async () => {

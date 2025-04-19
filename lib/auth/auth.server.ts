@@ -3,6 +3,7 @@ import { User } from "@supabase/supabase-js";
 import db from "../db";
 import { getRandomProfilePicture } from "../utils";
 import { InternshipOrJob, UserType } from "@/types/user.types";
+import { SingleProject } from "@/types/project.types";
 
 export async function createUser(user: User) {
   try {
@@ -158,6 +159,57 @@ export async function updateUser(user: UserType) {
       },
     });
     return res as unknown as UserType;
+  } catch (error) {
+    console.log("Error updating user:", error);
+    return null;
+  }
+}
+
+export async function updateUserProject(
+  userId: string,
+  build: SingleProject,
+  isDiscordConnected?: boolean,
+  isTwitterShared?: boolean,
+  current?: "Increase"
+) {
+  try {
+    const existingProject = await db.projectUser.findFirst({
+      where: {
+        userId: userId,
+        projectname: build.name,
+      },
+    });
+
+    if (existingProject) {
+      const res = await db.projectUser.update({
+        where: {
+          id: existingProject.id,
+        },
+        data: {
+          isDiscordConnected:
+            isDiscordConnected || existingProject.isDiscordConnected,
+          isTwitterShared: isTwitterShared || existingProject.isTwitterShared,
+          current:
+            current == "Increase"
+              ? existingProject.current + 1
+              : existingProject.current,
+        },
+      });
+      return res;
+    } else {
+      const res = await db.projectUser.create({
+        data: {
+          userId: userId,
+          projectname: build.name,
+          isDiscordConnected: isDiscordConnected || false,
+          isTwitterShared: isTwitterShared || false,
+          current: 1,
+          total: build.stepsLength,
+        },
+      });
+
+      return res;
+    }
   } catch (error) {
     console.log("Error updating user:", error);
     return null;

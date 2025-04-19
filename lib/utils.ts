@@ -51,3 +51,19 @@ export function getRandomProfilePicture(): string {
   const randomIndex = Math.floor(Math.random() * pfps.length);
   return pfps[randomIndex];
 }
+
+export function getProgressMessage(percentage: number): string {
+  const progressMessages = [
+    { threshold: 0, message: "Let's get started!" },
+    { threshold: 25, message: "Just beginning your journey" },
+    { threshold: 50, message: "Making good progress" },
+    { threshold: 75, message: "Well on your way" },
+    { threshold: 100, message: "Almost there!" },
+    { threshold: Infinity, message: "You've completed it!" },
+  ];
+
+  return (
+    progressMessages.find(({ threshold }) => percentage < threshold)?.message ||
+    "You've completed it!"
+  );
+}

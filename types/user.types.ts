@@ -24,7 +24,7 @@ type Socials = {
   linkedIn: string | undefined;
 };
 
-type ProjectUser = {
+export type ProjectUser = {
   projectname: string;
   isDiscordConnected: boolean;
   isTwitterShared: boolean;

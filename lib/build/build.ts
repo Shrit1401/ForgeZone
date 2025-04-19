@@ -1,5 +1,6 @@
 import { SingleProject } from "@prisma/client";
 import { getAllBuilds, GetBuildBySlug } from "./builds.server";
+import { ProjectUser, UserType } from "@/types/user.types";
 
 export async function getBuilds(setBuilds: any) {
   const res = await getAllBuilds();
@@ -19,3 +20,15 @@ export async function getBuildBySlug(slug: string, setBuild: any) {
   setBuild(res);
   return res;
 }
+
+export const getProjectFromUser = (user: UserType, buildName: string) => {
+  const project = user.projects.find((project: ProjectUser) => {
+    return project.projectname === buildName;
+  });
+
+  if (!project) {
+    return null;
+  }
+
+  return project;
+};
