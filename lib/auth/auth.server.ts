@@ -83,6 +83,7 @@ export async function getUserById(id: string) {
         twitter: userData.socials?.twitter || "",
       },
       projects: userData.projects.map((projectUser) => ({
+        id: projectUser.id,
         projectname: projectUser.projectname,
         isDiscordConnected: projectUser.isDiscordConnected,
         isTwitterShared: projectUser.isTwitterShared,

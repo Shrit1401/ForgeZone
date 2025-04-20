@@ -1,6 +1,7 @@
 "use server";
 import db from "@/lib/db";
 import { SingleProject } from "@/types/project.types";
+import { UserMessage } from "@/types/user.types";
 
 export const getAllBuilds = async () => {
   try {
@@ -135,3 +136,29 @@ export async function updateUserProject(
     return null;
   }
 }
+
+export const createProjectMessage = async (
+  userId: string,
+  message: string,
+  target: string
+) => {
+  try {
+    const res = await db.message.create({
+      data: {
+        message: message,
+        target: target,
+        projectUserId: userId,
+      },
+    });
+
+    const msg: UserMessage = {
+      id: res.id,
+      message: res.message,
+      target: res.target,
+    };
+    return msg;
+  } catch (error) {
+    console.log("Error creating project message:", error);
+    return null;
+  }
+};

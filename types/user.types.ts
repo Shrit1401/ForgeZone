@@ -25,16 +25,17 @@ type Socials = {
 };
 
 export type ProjectUser = {
+  id: string;
   projectname: string;
   isDiscordConnected: boolean;
   isTwitterShared: boolean;
   current: number;
   total: number;
   userId: string;
-  messages: Message[];
+  messages: UserMessage[];
 };
 
-type Message = {
+export type UserMessage = {
   id: string;
   message: string;
   target: string;

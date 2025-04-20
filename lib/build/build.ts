@@ -1,6 +1,6 @@
 import { SingleProject, StepItem } from "@/types/project.types";
 import { getAllBuilds, GetBuildBySlug } from "./builds.server";
-import { ProjectUser, UserType } from "@/types/user.types";
+import { ProjectUser, UserMessage, UserType } from "@/types/user.types";
 
 export async function getBuilds(setBuilds: any) {
   const res = await getAllBuilds();
