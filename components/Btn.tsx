@@ -1,5 +1,5 @@
 import Link from "next/link";
-import React, { ButtonHTMLAttributes } from "react";
+import React from "react";
 
 type BtnProps = {
   title: string;
@@ -9,6 +9,7 @@ type BtnProps = {
   type?: "normal" | "outline" | "ghost";
   sideIcon?: React.ReactNode;
   onClick?: () => void;
+  disabled?: boolean;
 };
 
 const Btn: React.FC<BtnProps> = ({
@@ -18,6 +19,7 @@ const Btn: React.FC<BtnProps> = ({
   size = "medium",
   type = "normal",
   sideIcon = null,
+  disabled = false,
   onClick,
 }) => {
   const styles = `${
@@ -44,7 +46,20 @@ const Btn: React.FC<BtnProps> = ({
   }
 
   return (
-    <button onClick={onClick} className={styles}>
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      type="button"
+      aria-disabled={disabled}
+      data-disabled={disabled}
+      data-type={type}
+      data-size={size}
+      data-link={link}
+      data-side-icon={sideIcon}
+      data-title={title}
+      data-class-name={className}
+      className={styles}
+    >
       {sideIcon && <span className="mr-2">{sideIcon}</span>}
       {title}
     </button>

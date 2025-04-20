@@ -1,8 +1,11 @@
-import React from "react";
+"use client";
+
+import React, { useEffect, useState } from "react";
 import { TrophyIcon } from "@heroicons/react/16/solid";
 import Btn from "@/components/Btn";
 import Sidebar from "@/components/build/Sidebar";
 import CourseMarkdown from "@/components/build/CourseMarkdown";
+import CourseSkeleton from "@/components/skeletons/CourseSkeleton";
 
 import {
   Breadcrumb,
@@ -13,14 +16,82 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import RequirementDialog from "@/components/build/RequirementDialog";
+import { SingleProject, StepItem } from "@/types/project.types";
+import { useParams } from "next/navigation";
+import {
+  getBuildBySlug,
+  getBuildStepBySlug,
+  getProjectFromUser,
+} from "@/lib/build/build";
+import { ProjectUser, UserType } from "@/types/user.types";
+import { getLoggedInUser } from "@/lib/auth/auth";
 
 const StepHome = () => {
-  const percentage = 75;
+  const [build, setBuild] = useState<SingleProject>();
+  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<UserType | null | undefined>();
+  const [userProject, setUserProject] = useState<ProjectUser | null>(null);
+  const [percentage, setPercentage] = useState(0);
+  const [step, setStep] = useState<StepItem>();
+
+  const params = useParams();
+  const buildParam = params.build as string;
+  const courseParam = params.step as string;
+
+  useEffect(() => {
+    getLoggedInUser(setUser, setLoading);
+  }, []);
+
+  useEffect(() => {
+    const fetchBuild = async () => {
+      setLoading(true);
+      try {
+        await getBuildBySlug(buildParam, setBuild);
+      } catch (error) {
+        console.error("Error fetching build:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBuild();
+  }, [buildParam]);
+
+  useEffect(() => {
+    setLoading(true);
+    getBuildStepBySlug(build, courseParam, setStep);
+    setLoading(false);
+  }, [user, build]);
+
+  const handleClick = async (message: string) => {
+    console.log("Message:", message);
+  };
+
+  useEffect(() => {
+    if (user && build) {
+      const res = getProjectFromUser(user, build.name);
+      if (res) {
+        setUserProject(res);
+        setPercentage(Math.floor((res.current / res.total) * 100));
+      } else {
+        setUserProject(null);
+      }
+    }
+  }, [user, build]);
+
+  if (loading || !build || !user || !userProject || !step) {
+    return <CourseSkeleton />;
+  }
+
   return (
     <div className="mt-[5rem] mb-[6rem] h-screen flex ">
       <section className="flex w-full">
-        {/* Sidebar */}
-        <Sidebar />
+        <Sidebar
+          slug={build.projectSlug}
+          current={userProject.current}
+          steps={build.steps}
+          image={build?.activeImg}
+        />
 
         <div className="left-[20%] h-screen border-l fixed border-dashed border-white/20" />
         <div className="w-full mt-[4rem] fixed top-0 border-t border-dashed border-white/20" />
@@ -30,19 +101,21 @@ const StepHome = () => {
           <Breadcrumb className="mb-4">
             <BreadcrumbList>
               <BreadcrumbItem>
-                <BreadcrumbLink href="/">Home</BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem>
                 <BreadcrumbLink href="/builds">Builds</BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
-                <BreadcrumbPage>Intro to ML</BreadcrumbPage>
+                <BreadcrumbLink href={`/builds/${buildParam}`}>
+                  {build?.name}
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem className="capitalize">
+                <BreadcrumbPage>{courseParam}</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
-          <CourseMarkdown />
+          <CourseMarkdown source={step.source} name={step.text} />
         </div>
       </section>
 
@@ -88,7 +161,10 @@ const StepHome = () => {
         </div>
 
         <div className="w-1/5 px-6 py-3 flex items-center justify-end gap-3">
-          <RequirementDialog>
+          <RequirementDialog
+            title={step.requirementMessage}
+            onClick={handleClick}
+          >
             <Btn
               title="Submit Requirments"
               className="bg-white rounded-full text-black font-[700] px-6 py-2 hover:opacity-80 transition-all duration-200"

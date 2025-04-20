@@ -11,6 +11,19 @@ export async function createUser(user: User) {
       console.log("User is null");
       return null;
     }
+
+    // Check if user already exists before creating
+    const existingUser = await db.user.findUnique({
+      where: {
+        id: user.id,
+      },
+    });
+
+    if (existingUser) {
+      console.log("User already exists, returning existing user");
+      return existingUser as unknown as UserType;
+    }
+
     const pfp = getRandomProfilePicture();
     const res = await db.user.create({
       data: {
@@ -20,10 +33,6 @@ export async function createUser(user: User) {
         pfp: pfp,
         internshipOrJob: "internship",
         projectsNum: 0,
-
-        projects: {
-          create: [],
-        },
       },
     });
     return res as unknown as UserType;
@@ -35,68 +44,59 @@ export async function createUser(user: User) {
 
 export async function getUserById(id: string) {
   try {
+    // Use Prisma's include to perform a single query instead of multiple queries
     const userData = await db.user.findUnique({
       where: {
         id: id,
       },
-    });
-
-    const socialsData = await db.social.findUnique({
-      where: {
-        userId: id,
-      },
-    });
-
-    const projectsData = await db.projectUser.findMany({
-      where: {
-        userId: id,
-      },
-    });
-
-    const messagedata = await db.message.findMany({
-      where: {
-        projectUserId: {
-          in: projectsData.map((project) => project.id),
+      include: {
+        socials: true,
+        projects: {
+          include: {
+            messages: true,
+          },
         },
       },
     });
 
+    if (!userData) {
+      return null;
+    }
+
     const user: UserType = {
-      id: userData?.id || "",
-      name: userData?.name || "",
-      email: userData?.email || "",
-      username: userData?.username || "",
-      pfp: userData?.pfp || "",
-      oneLiner: userData?.oneLiner || "",
-      location: userData?.location || "",
-      whatworkingrn: userData?.whatworkingrn || "",
+      id: userData.id || "",
+      name: userData.name || "",
+      email: userData.email || "",
+      username: userData.username || "",
+      pfp: userData.pfp || "",
+      oneLiner: userData.oneLiner || "",
+      location: userData.location || "",
+      whatworkingrn: userData.whatworkingrn || "",
       internshipOrJob:
-        userData?.internshipOrJob == "internship"
+        userData.internshipOrJob === "internship"
           ? InternshipOrJob.internship
           : InternshipOrJob.job,
-      projectsNumber: userData?.projectsNum || 0,
+      projectsNumber: userData.projectsNum || 0,
       socials: {
-        github: socialsData?.github || "",
-        linkedIn: socialsData?.linkedIn || "",
-        twitter: socialsData?.twitter || "",
+        github: userData.socials?.github || "",
+        linkedIn: userData.socials?.linkedIn || "",
+        twitter: userData.socials?.twitter || "",
       },
-      projects:
-        projectsData.map((projectUser) => ({
-          projectname: projectUser.projectname,
-          isDiscordConnected: projectUser.isDiscordConnected,
-          isTwitterShared: projectUser.isTwitterShared,
-          total: projectUser.total,
-          current: projectUser.current,
-          userId: projectUser.userId,
-          messages: messagedata
-            .filter((message) => message.projectUserId === projectUser.id)
-            .map((message) => ({
-              id: message.id,
-              message: message.message,
-              target: message.target,
-            })),
-        })) || [],
+      projects: userData.projects.map((projectUser) => ({
+        projectname: projectUser.projectname,
+        isDiscordConnected: projectUser.isDiscordConnected,
+        isTwitterShared: projectUser.isTwitterShared,
+        total: projectUser.total,
+        current: projectUser.current,
+        userId: projectUser.userId,
+        messages: projectUser.messages.map((message) => ({
+          id: message.id,
+          message: message.message,
+          target: message.target,
+        })),
+      })),
     };
+
     return user;
   } catch (error) {
     console.log("Error fetching user:", error);
@@ -124,12 +124,7 @@ export async function updatePfp(id: string, pfp: string) {
 
 export async function updateUser(user: UserType) {
   try {
-    const existingSocials = await db.social.findUnique({
-      where: {
-        userId: user.id,
-      },
-    });
-
+    // Update user and handle socials in a single operation
     const res = await db.user.update({
       where: {
         id: user.id,
@@ -141,75 +136,27 @@ export async function updateUser(user: UserType) {
         location: user.location,
         internshipOrJob: user.internshipOrJob ? "internship" : "job",
         projectsNum: user.projectsNumber,
-        socials: existingSocials
-          ? {
-              update: {
-                github: user.socials?.github || "",
-                linkedIn: user.socials?.linkedIn || "",
-                twitter: user.socials?.twitter || "",
-              },
-            }
-          : {
-              create: {
-                github: user.socials?.github || "",
-                linkedIn: user.socials?.linkedIn || "",
-                twitter: user.socials?.twitter || "",
-              },
+        socials: {
+          upsert: {
+            create: {
+              github: user.socials?.github || "",
+              linkedIn: user.socials?.linkedIn || "",
+              twitter: user.socials?.twitter || "",
             },
+            update: {
+              github: user.socials?.github || "",
+              linkedIn: user.socials?.linkedIn || "",
+              twitter: user.socials?.twitter || "",
+            },
+          },
+        },
+      },
+      include: {
+        socials: true,
       },
     });
+
     return res as unknown as UserType;
-  } catch (error) {
-    console.log("Error updating user:", error);
-    return null;
-  }
-}
-
-export async function updateUserProject(
-  userId: string,
-  build: SingleProject,
-  isDiscordConnected?: boolean,
-  isTwitterShared?: boolean,
-  current?: "Increase"
-) {
-  try {
-    const existingProject = await db.projectUser.findFirst({
-      where: {
-        userId: userId,
-        projectname: build.name,
-      },
-    });
-
-    if (existingProject) {
-      const res = await db.projectUser.update({
-        where: {
-          id: existingProject.id,
-        },
-        data: {
-          isDiscordConnected:
-            isDiscordConnected || existingProject.isDiscordConnected,
-          isTwitterShared: isTwitterShared || existingProject.isTwitterShared,
-          current:
-            current == "Increase"
-              ? existingProject.current + 1
-              : existingProject.current,
-        },
-      });
-      return res;
-    } else {
-      const res = await db.projectUser.create({
-        data: {
-          userId: userId,
-          projectname: build.name,
-          isDiscordConnected: isDiscordConnected || false,
-          isTwitterShared: isTwitterShared || false,
-          current: 1,
-          total: build.stepsLength,
-        },
-      });
-
-      return res;
-    }
   } catch (error) {
     console.log("Error updating user:", error);
     return null;

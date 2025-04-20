@@ -7,14 +7,18 @@ import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 import ReactPlayer from "react-player";
 import { ClipboardIcon, CheckBadgeIcon } from "@heroicons/react/24/outline";
-const CourseMarkdown: React.FC = () => {
+
+type MarkdownProps = {
+  source: string;
+  name: string;
+};
+
+const CourseMarkdown: React.FC<MarkdownProps> = ({ source, name }) => {
   const [markdown, setMarkdown] = useState<string>("");
 
   useEffect(() => {
     const fetchMarkdown = async () => {
-      const response = await fetch(
-        "https://raw.githubusercontent.com/buildspace/buildspace-projects/refs/heads/main/GPT3_Writer/en/Section_3/Lesson_1_Setup_chrome_extension.md"
-      );
+      const response = await fetch(source);
       const text = await response.text();
       setMarkdown(text);
     };
@@ -91,7 +95,7 @@ const CourseMarkdown: React.FC = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen text-white p-4">
-      <h1 className="text-6xl manrope font-semibold mb-8">Getting Started</h1>
+      <h1 className="text-6xl manrope font-semibold mb-8">{name}</h1>
       <div className="prose prose-invert prose-p:text-lg prose-h3:text-2xl prose-p:leading-loose max-w-2xl">
         <ReactMarkdown
           remarkPlugins={[remarkGfm]}

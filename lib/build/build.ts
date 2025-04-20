@@ -1,4 +1,4 @@
-import { SingleProject } from "@prisma/client";
+import { SingleProject, StepItem } from "@/types/project.types";
 import { getAllBuilds, GetBuildBySlug } from "./builds.server";
 import { ProjectUser, UserType } from "@/types/user.types";
 
@@ -31,4 +31,65 @@ export const getProjectFromUser = (user: UserType, buildName: string) => {
   }
 
   return project;
+};
+
+export const getBuildFromUser = (
+  user: UserType,
+  builds: SingleProject[],
+  setUserBuilds: React.Dispatch<React.SetStateAction<SingleProject[]>>
+) => {
+  const userProjectNames = user.projects.map(
+    (project: ProjectUser) => project.projectname
+  );
+
+  const userBuilds = builds.filter((build: SingleProject) =>
+    userProjectNames.includes(build.name)
+  );
+
+  if (userBuilds.length === 0) {
+    return [];
+  }
+
+  setUserBuilds(userBuilds);
+  return userBuilds;
+};
+
+export const getNextBuildPageSlug = (build: SingleProject, current: number) => {
+  if (current < 0) return null; // Prevent invalid indices
+
+  let flatIndex = -1;
+
+  for (let section of build.steps) {
+    for (let step of section.stepItems) {
+      flatIndex++;
+
+      if (flatIndex === current) {
+        return step.slug;
+      }
+    }
+  }
+
+  // TODO: handle case when course is completed
+  return null;
+};
+
+export const getBuildStepBySlug = (
+  build: SingleProject | undefined,
+  courseSlug: string,
+  setStep: React.Dispatch<React.SetStateAction<StepItem | undefined>>
+) => {
+  if (!build) {
+    return null;
+  }
+  const step = build.steps
+    .flatMap((section) => section.stepItems)
+    .find((step) => step.slug === courseSlug);
+
+  if (!step) {
+    return null;
+  }
+
+  setStep(step);
+
+  return step;
 };

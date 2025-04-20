@@ -1,13 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import {
-  TrophyIcon,
-  XCircleIcon,
-  CheckCircleIcon,
-} from "@heroicons/react/16/solid";
-import { FaDiscord, FaTwitter } from "react-icons/fa";
-import { ArrowDownRightIcon } from "@heroicons/react/24/outline";
+import { XCircleIcon, CheckCircleIcon } from "@heroicons/react/16/solid";
+import { FaTwitter } from "react-icons/fa";
 import Btn from "@/components/Btn";
 import Sidebar from "@/components/build/Sidebar";
 import { useParams } from "next/navigation";
@@ -27,7 +22,6 @@ import DiscordConnectionSection from "@/components/build/DiscordConnectionSectio
 import { UserType, ProjectUser } from "@/types/user.types";
 import { getLoggedInUser, updateUserBuild } from "@/lib/auth/auth";
 import { toast } from "sonner";
-import { getProgressMessage } from "@/lib/utils";
 import Bottombar from "@/components/build/Bottombar";
 
 const BuildHome = () => {
@@ -87,8 +81,6 @@ const BuildHome = () => {
     }
   }, [twitterUrl]);
 
-  console.log(userProject);
-
   const twitterClicked = async () => {
     if (!user || !build || !user.id) return;
     const twitterDB = await updateUserBuild(
@@ -110,7 +102,7 @@ const BuildHome = () => {
     setTwitterUrl(`https://twitter.com/intent/tweet?text=${twitterText}`);
   };
 
-  if (loading || !build || !user) {
+  if (loading || !build || !user || !userProject) {
     return <BuildHomeSkeleton />;
   }
 
@@ -118,11 +110,10 @@ const BuildHome = () => {
     <div className="mt-[5rem] h-screen flex">
       <section className="flex w-full">
         <Sidebar
-          steps={build?.steps || []}
-          image={
-            build?.activeImg ||
-            "https://raw.githubusercontent.com/Shrit1401/Supabase-CRUD/refs/heads/FORGEZONE/public/image.png"
-          }
+          slug={build.projectSlug}
+          current={userProject.current}
+          steps={build.steps}
+          image={build.activeImg}
         />
 
         <div className="left-[20%] h-screen border-l fixed border-dashed border-white/20" />
@@ -195,6 +186,9 @@ const BuildHome = () => {
       </section>
 
       <Bottombar
+        userId={user.id}
+        current={userProject?.current || 0}
+        build={build}
         percentage={percentage}
         isDiscordConnected={isDiscordConnected}
         isTwitterConnected={isTwitterConnected}

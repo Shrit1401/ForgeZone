@@ -2,6 +2,45 @@
 import React from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 
+// Component for the builds page skeleton card
+const SkeletonCard = () => (
+  <div className="w-full sm:w-1/2 md:w-1/3 p-4">
+    <div className="border rounded-lg overflow-hidden">
+      <Skeleton className="h-48 w-full" />
+      <div className="p-4">
+        <Skeleton className="h-6 w-3/4 mb-2" />
+        <Skeleton className="h-4 w-full mb-1" />
+        <Skeleton className="h-4 w-2/3" />
+      </div>
+    </div>
+  </div>
+);
+
+// Skeleton for the builds page
+export const BuildsPageSkeleton = () => {
+  return (
+    <div className="mt-[6rem] mx-auto max-w-7xl px-4 mb-10">
+      <section className="mb-12">
+        <Skeleton className="h-10 w-48 mb-6" />
+        <div className="flex flex-wrap">
+          {[...Array(3)].map((_, i) => (
+            <SkeletonCard key={i} />
+          ))}
+        </div>
+      </section>
+      <section>
+        <Skeleton className="h-10 w-48 mb-6" />
+        <div className="flex flex-wrap">
+          {[...Array(6)].map((_, i) => (
+            <SkeletonCard key={i} />
+          ))}
+        </div>
+      </section>
+    </div>
+  );
+};
+
+// Original build home skeleton for a different page layout
 const BuildHomeSkeleton = () => {
   return (
     <div className="mt-[5rem] h-screen flex">

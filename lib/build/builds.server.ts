@@ -84,3 +84,54 @@ export const GetBuildBySlug = async (slug: string) => {
     return null;
   }
 };
+
+export async function updateUserProject(
+  userId: string,
+  build: SingleProject,
+  isDiscordConnected?: boolean,
+  isTwitterShared?: boolean,
+  current?: "Increase"
+) {
+  try {
+    const existingProject = await db.projectUser.findFirst({
+      where: {
+        userId: userId,
+        projectname: build.name,
+      },
+    });
+
+    if (existingProject) {
+      const res = await db.projectUser.update({
+        where: {
+          id: existingProject.id,
+        },
+        data: {
+          isDiscordConnected:
+            isDiscordConnected || existingProject.isDiscordConnected,
+          isTwitterShared: isTwitterShared || existingProject.isTwitterShared,
+          current:
+            current == "Increase"
+              ? existingProject.current + 1
+              : existingProject.current,
+        },
+      });
+      return res;
+    } else {
+      const res = await db.projectUser.create({
+        data: {
+          userId: userId,
+          projectname: build.name,
+          isDiscordConnected: isDiscordConnected || false,
+          isTwitterShared: isTwitterShared || false,
+          current: 0,
+          total: build.stepsLength,
+        },
+      });
+
+      return res;
+    }
+  } catch (error) {
+    console.log("Error updating user:", error);
+    return null;
+  }
+}

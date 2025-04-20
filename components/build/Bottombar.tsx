@@ -1,20 +1,56 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { TrophyIcon } from "@heroicons/react/16/solid";
 import Btn from "@/components/Btn";
 import { getProgressMessage } from "@/lib/utils";
+import { updateUserBuild } from "@/lib/auth/auth";
+import { SingleProject } from "@/types/project.types";
+import { toast } from "sonner";
+import { getNextBuildPageSlug } from "@/lib/build/build";
 
 interface BottombarProps {
   percentage: number;
+  userId: string;
+  current: number;
+  build: SingleProject;
   isDiscordConnected: boolean;
   isTwitterConnected: boolean;
 }
 
 const Bottombar: React.FC<BottombarProps> = ({
   percentage,
+  userId,
+  current,
+  build,
   isDiscordConnected,
   isTwitterConnected,
 }) => {
-  // Memoize calculations to ensure consistent rendering between server and client
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleClick = async () => {
+    try {
+      setIsLoading(true);
+      const slug = getNextBuildPageSlug(build, current);
+
+      const increaseDB = await updateUserBuild(
+        userId,
+        build,
+        undefined,
+        undefined,
+        undefined,
+        "Increase"
+      );
+      if (increaseDB) {
+        window.location.href = `/p/${build.projectSlug}/${slug}`;
+      } else {
+        toast.error("Error updating build");
+      }
+    } catch (error) {
+      toast.error("Something went wrong");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const strokeDasharray = useMemo(() => 2 * Math.PI * 17, []);
   const strokeDashoffset = useMemo(
     () => strokeDasharray * (1 - percentage / 100),
@@ -61,13 +97,15 @@ const Bottombar: React.FC<BottombarProps> = ({
 
       <div className="mr-2">
         <Btn
-          title="Let's Go"
+          title={isLoading ? "Loading..." : "Let's Go"}
           className={`bg-white ${
             isDiscordConnected &&
             isTwitterConnected &&
+            !isLoading &&
             "animate-pulse hover:animate-none"
           } rounded-full text-black font-[700] px-6 py-2 hover:opacity-80 transition-all duration-200`}
-          link={""} // TODO: Add the correct link here
+          onClick={handleClick}
+          disabled={isLoading}
         />
       </div>
     </section>

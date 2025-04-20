@@ -1,7 +1,8 @@
 import { ProjectUser, UserType } from "@/types/user.types";
-import { createUser, getUserById, updateUserProject } from "./auth.server";
+import { createUser, getUserById } from "./auth.server";
 import { supabaseClient } from "@/supabase/client";
 import { SingleProject } from "@/types/project.types";
+import { updateUserProject } from "../build/builds.server";
 
 const url = process.env.NEXT_PUBLIC_NEXT_URL || "http://localhost:3000";
 

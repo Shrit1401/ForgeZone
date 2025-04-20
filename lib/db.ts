@@ -1,14 +1,24 @@
 import { PrismaClient } from "@prisma/client";
 
+// Prevent multiple instances of Prisma Client in development
 const prismaClientSingleton = () => {
-  return new PrismaClient();
+  return new PrismaClient({
+    // Add log levels for better debugging
+    log:
+      process.env.NODE_ENV === "development"
+        ? ["query", "error", "warn"]
+        : ["error"],
+  });
 };
 
-declare global {
-  var prisma: undefined | ReturnType<typeof prismaClientSingleton>;
-}
+type PrismaClientSingleton = ReturnType<typeof prismaClientSingleton>;
 
-const db = globalThis.prisma ?? prismaClientSingleton();
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClientSingleton | undefined;
+};
+
+const db = globalForPrisma.prisma ?? prismaClientSingleton();
+
 export default db;
 
-if (process.env.NODE_ENV !== "production") globalThis.prisma = db;
+if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = db;
