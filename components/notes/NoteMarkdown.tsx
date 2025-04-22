@@ -93,12 +93,33 @@ const NoteMarkdown: React.FC<NoteMarkdownProps> = ({ url }) => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen text-white p-4">
-      <div className="prose prose-invert prose-p:text-lg prose-h3:text-2xl prose-p:leading-loose prose-img:rounded-lg prose-img:shadow-lg max-w-2xl">
+    <div className="flex flex-col justify-start items-center min-h-screen text-white p-4">
+      <div className="prose prose-invert prose-p:text-lg prose-h3:text-2xl prose-p:leading-loose prose-img:rounded-lg prose-img:shadow-lg prose-ul:text-white prose-li:text-white max-w-2xl">
         <ReactMarkdown
           remarkPlugins={[remarkGfm]}
           rehypePlugins={[rehypeRaw]}
-          components={{ ...codeComponent, a: renderLink }}
+          components={{
+            ...codeComponent,
+            a: renderLink,
+            h1: ({ node, ...props }) => (
+              <h1 className=" font-bold manrope" {...props} />
+            ),
+            h2: ({ node, ...props }) => (
+              <h2 className=" font-bold manrope" {...props} />
+            ),
+            h3: ({ node, ...props }) => (
+              <h3 className=" font-bold manrope" {...props} />
+            ),
+            h4: ({ node, ...props }) => (
+              <h4 className=" font-bold manrope" {...props} />
+            ),
+            h5: ({ node, ...props }) => (
+              <h5 className=" font-bold manrope" {...props} />
+            ),
+            h6: ({ node, ...props }) => (
+              <h6 className=" font-bold manrope" {...props} />
+            ),
+          }}
         >
           {markdown}
         </ReactMarkdown>

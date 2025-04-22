@@ -124,5 +124,6 @@ model Note {
   createdAt   DateTime @default(now())
   tag         String
   cardImage   String
+  slug        String   @unique
   markdownUrl String
 }

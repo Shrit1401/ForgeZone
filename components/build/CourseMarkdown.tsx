@@ -100,7 +100,28 @@ const CourseMarkdown: React.FC<MarkdownProps> = ({ source, name }) => {
         <ReactMarkdown
           remarkPlugins={[remarkGfm]}
           rehypePlugins={[rehypeRaw]}
-          components={{ ...codeComponent, a: renderLink }}
+          components={{
+            ...codeComponent,
+            a: renderLink,
+            h1: ({ node, ...props }) => (
+              <h1 className=" font-bold manrope" {...props} />
+            ),
+            h2: ({ node, ...props }) => (
+              <h2 className=" font-bold manrope" {...props} />
+            ),
+            h3: ({ node, ...props }) => (
+              <h3 className=" font-bold manrope" {...props} />
+            ),
+            h4: ({ node, ...props }) => (
+              <h4 className=" font-bold manrope" {...props} />
+            ),
+            h5: ({ node, ...props }) => (
+              <h5 className=" font-bold manrope" {...props} />
+            ),
+            h6: ({ node, ...props }) => (
+              <h6 className=" font-bold manrope" {...props} />
+            ),
+          }}
         >
           {markdown}
         </ReactMarkdown>

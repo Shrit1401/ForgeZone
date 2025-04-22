@@ -4,9 +4,7 @@ const nextConfig: NextConfig = {
   images: {
     domains: ["i.imgur.com"],
   },
-  experimental: {
-    serverComponentsExternalPackages: ["@prisma/client", "prisma"],
-  },
+  serverExternalPackages: ["@prisma/client", "prisma"],
 };
 
 export default nextConfig;

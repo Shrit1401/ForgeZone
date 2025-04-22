@@ -47,6 +47,7 @@ const Navbar = () => {
   const links = [
     { name: "builds", link: "/builds" },
     { name: "work", link: "/work" },
+    { name: "notes", link: "/notes" },
     {
       name: "discord",
       link: "https://discord.gg/e3RfmAVAXV",
@@ -57,14 +58,14 @@ const Navbar = () => {
   return (
     <nav
       className="fixed top-0 left-0 w-full backdrop-blur-xl bg-opacity-80 bg-[rgba(0,0,0,0.2)] px-4 sm:px-6 py-4 flex 
-      justify-around items-center z-[996]"
+      justify-between items-center z-[996]"
     >
       <motion.a
         href="/"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="z-10"
+        className="z-10 flex-1"
       >
         <Image
           src={logo}
@@ -156,7 +157,7 @@ const Navbar = () => {
       </AnimatePresence>
 
       {/* Desktop navigation */}
-      <ul className="hidden md:flex md:flex-row md:static md:bg-transparent justify-center md:gap-6 manrope text-xl text-white">
+      <ul className="hidden md:flex md:flex-row md:static md:bg-transparent justify-center md:gap-6 manrope text-xl text-white flex-grow text-center">
         {links.map((link, index) => (
           <motion.li
             key={index}
@@ -178,38 +179,41 @@ const Navbar = () => {
       </ul>
 
       {/* Desktop profile/login button */}
-      <div className="hidden md:block">
+      <div className="hidden md:block flex-1 text-right">
         {loading ? (
-          <Skeleton className="h-10 w-32 rounded-full" />
+          <Skeleton className="h-10 w-32 rounded-full inline-block" />
         ) : !user ? (
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.5 }}
             whileHover={{ scale: 1.05 }}
+            className="inline-block"
           >
             <Btn title="Start" link="/start" />
           </motion.div>
         ) : (
-          <ProfileDropdown handleSignOut={handleSignOut}>
-            <motion.a
-              href="/profile"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.5 }}
-              className="flex justify-center gap-2 cursor-pointer items-center hover:scale-105 transition-all duration-200"
-            >
-              <h3 className="text-white manrope text-lg font-semibold cursor-pointer">
-                {user.username}
-              </h3>
-              <ChevronDown className="h-5 w-5 text-white" />
-              <img
-                src={user.pfp}
-                className="h-12 w-12 rounded-full ml-2 cursor-pointer"
-                alt={user.username}
-              />
-            </motion.a>
-          </ProfileDropdown>
+          <div className="inline-block">
+            <ProfileDropdown handleSignOut={handleSignOut}>
+              <motion.a
+                href="/profile"
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.5 }}
+                className="flex justify-center gap-2 cursor-pointer items-center hover:scale-105 transition-all duration-200"
+              >
+                <h3 className="text-white manrope text-lg font-semibold cursor-pointer">
+                  {user.username}
+                </h3>
+                <ChevronDown className="h-5 w-5 text-white" />
+                <img
+                  src={user.pfp}
+                  className="h-12 w-12 rounded-full ml-2 cursor-pointer"
+                  alt={user.username}
+                />
+              </motion.a>
+            </ProfileDropdown>
+          </div>
         )}
       </div>
     </nav>
