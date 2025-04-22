@@ -6,12 +6,14 @@ import { updateUserProject } from "../build/builds.server";
 
 const url = process.env.NEXT_PUBLIC_NEXT_URL || "http://localhost:3000";
 
-export async function signInWithEmail(email: string) {
+export async function signInWithEmail(email: string, redirectTo?: string) {
   const { data, error } = await supabaseClient.auth.signInWithOtp({
     email: email,
     options: {
       shouldCreateUser: true,
-      emailRedirectTo: `${url}/auth-awesome`,
+      emailRedirectTo: redirectTo
+        ? `${url}/auth-awesome?redirectTo=${encodeURIComponent(redirectTo)}`
+        : `${url}/auth-awesome`,
     },
   });
 

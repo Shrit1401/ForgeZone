@@ -1,7 +1,7 @@
 "use server";
 import db from "@/lib/db";
 import { SingleProject } from "@/types/project.types";
-import { UserMessage } from "@/types/user.types";
+import { UserMessage, UserType } from "@/types/user.types";
 
 export const getAllBuilds = async () => {
   try {
@@ -162,6 +162,49 @@ export const createProjectMessage = async (
     return msg;
   } catch (error) {
     console.log("Error creating project message:", error);
+    return null;
+  }
+};
+
+export const initialCurrentBuild = async (
+  userId: string,
+  build: SingleProject
+) => {
+  try {
+    // Find the project user first
+    const projectUser = await db.projectUser.findFirst({
+      where: {
+        userId: userId,
+        projectname: build.name,
+      },
+    });
+
+    if (!projectUser) {
+      // Create a new record if not exists
+      const res = await db.projectUser.create({
+        data: {
+          userId: userId,
+          projectname: build.name,
+          current: 1,
+          total: build.stepsLength,
+        },
+      });
+      return res;
+    } else {
+      // Update the existing record
+      const res = await db.projectUser.update({
+        where: {
+          id: projectUser.id,
+        },
+        data: {
+          current: 1,
+          total: build.stepsLength,
+        },
+      });
+      return res;
+    }
+  } catch (error) {
+    console.log("Error initializing current user build:", error);
     return null;
   }
 };

@@ -3,9 +3,13 @@ import Btn from "@/components/Btn";
 import { createUser } from "@/lib/auth/auth.server";
 import { supabaseClient } from "@/supabase/client";
 import { useEffect, useState } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 
 const LoginPage = () => {
   const [loading, setLoading] = useState<boolean>(false);
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const redirectTo = searchParams.get("redirectTo");
 
   const handleMagicLinkLogin = async () => {
     setLoading(true);
@@ -32,6 +36,16 @@ const LoginPage = () => {
     handleMagicLinkLogin();
   }, []);
 
+  const handleGetStarted = () => {
+    if (redirectTo) {
+      // If there's a redirect URL, navigate to it
+      window.location.href = redirectTo;
+    } else {
+      // Otherwise, go to the default profile page
+      window.location.href = "/profile";
+    }
+  };
+
   return (
     <div className="flex h-screen">
       <div className="w-full md:w-1/2 flex items-center justify-center p-8">
@@ -46,7 +60,7 @@ const LoginPage = () => {
             title="Get Started"
             className="w-full mt-4 py-2"
             type="outline"
-            link="/profile"
+            onClick={handleGetStarted}
           />
         </div>
       </div>

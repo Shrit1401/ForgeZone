@@ -73,6 +73,33 @@ export const getNextBuildPageSlug = (build: SingleProject, current: number) => {
   return null;
 };
 
+export const getCurrentStepIndex = (
+  build: SingleProject | undefined,
+  courseSlug: string
+): number => {
+  if (!build) {
+    return -1;
+  }
+
+  let flatIndex = -1;
+  let foundIndex = -1;
+
+  for (let section of build.steps) {
+    for (let step of section.stepItems) {
+      flatIndex++;
+
+      if (step.slug === courseSlug) {
+        foundIndex = flatIndex;
+        break;
+      }
+    }
+
+    if (foundIndex !== -1) break;
+  }
+
+  return foundIndex;
+};
+
 export const getBuildStepBySlug = (
   build: SingleProject | undefined,
   courseSlug: string,

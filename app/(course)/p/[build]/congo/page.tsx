@@ -1,7 +1,7 @@
 "use client";
 
 import { getLoggedInUser } from "@/lib/auth/auth";
-import { getBuildBySlug } from "@/lib/build/build";
+import { getBuildBySlug, getProjectFromUser } from "@/lib/build/build";
 import { SingleProject } from "@/types/project.types";
 import { UserType } from "@/types/user.types";
 import { useParams } from "next/navigation";
@@ -79,6 +79,18 @@ const CourseCompleteCongoPage = () => {
     };
     initializeData();
   }, [buildParam]);
+
+  // Check if user has completed the build before allowing access to the congo page
+  useEffect(() => {
+    if (user && build) {
+      const userProject = getProjectFromUser(user, build.name);
+      if (!userProject || userProject.current <= build.stepsLength) {
+        // User hasn't completed all steps, redirect to the build page
+        toast.error("You need to complete all steps first!");
+        window.location.href = `/p/${buildParam}`;
+      }
+    }
+  }, [user, build, buildParam]);
 
   const generateCertificateImage = async () => {
     if (!certificateRef.current) return null;

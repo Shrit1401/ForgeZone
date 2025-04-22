@@ -3,15 +3,21 @@ import Btn from "@/components/Btn";
 import { Input } from "@/components/ui/input";
 import { signInWithEmail } from "@/lib/auth/auth";
 import React from "react";
+import { useSearchParams } from "next/navigation";
 
 const LoginPage = () => {
   const [email, setEmail] = React.useState<string>("");
   const [loading, setLoading] = React.useState<boolean>(false);
-
   const [successfulLogin, setSuccessfulLogin] = React.useState<boolean>(false);
+
+  // Get the redirectTo parameter from the URL
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get("redirectTo");
+
   const handleLogin = async (email: string) => {
     setLoading(true);
-    const res = await signInWithEmail(email);
+    // Pass the redirectTo parameter to the sign-in function
+    const res = await signInWithEmail(email, redirectTo || undefined);
     if (res) {
       console.log("Login successful:", res);
       setSuccessfulLogin(true);

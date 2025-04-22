@@ -6,6 +6,7 @@ import { updateUserBuild } from "@/lib/auth/auth";
 import { SingleProject } from "@/types/project.types";
 import { toast } from "sonner";
 import { getNextBuildPageSlug } from "@/lib/build/build";
+import { initialCurrentBuild } from "@/lib/build/builds.server";
 
 interface BottombarProps {
   percentage: number;
@@ -31,19 +32,23 @@ const Bottombar: React.FC<BottombarProps> = ({
       setIsLoading(true);
       const slug = getNextBuildPageSlug(build, current);
 
-      const increaseDB = await updateUserBuild(
-        userId,
-        build,
-        undefined,
-        undefined,
-        undefined,
-        "Increase"
-      );
-      if (increaseDB) {
-        window.location.href = `/p/${build.projectSlug}/${slug}`;
-      } else {
+      // Use a flag to track if the component is still mounted
+      let isMounted = true;
+
+      const increaseDB = await initialCurrentBuild(userId, build);
+
+      // Check if component is still mounted before proceeding
+      if (isMounted && increaseDB) {
+        // Using router.push or window.location.replace is safer than window.location.href
+        window.location.replace(`/p/${build.projectSlug}/${slug}`);
+      } else if (isMounted) {
         toast.error("Error updating build");
       }
+
+      // Cleanup function to handle component unmounting during async operation
+      return () => {
+        isMounted = false;
+      };
     } catch (error) {
       toast.error("Something went wrong");
     } finally {

@@ -22,12 +22,30 @@ import {
   getBuildStepBySlug,
   getNextBuildPageSlug,
   getProjectFromUser,
+  getCurrentStepIndex,
 } from "@/lib/build/build";
 import { ProjectUser, UserMessage, UserType } from "@/types/user.types";
 import { getLoggedInUser, updateUserBuild } from "@/lib/auth/auth";
 import { createProjectMessage } from "@/lib/build/builds.server";
 import { toast } from "sonner";
 import { getProgressMessage } from "@/lib/utils";
+import { RxGithubLogo } from "react-icons/rx";
+
+// Function to convert raw GitHub URL to regular GitHub repository URL
+const convertRawToRepoUrl = (rawUrl: string) => {
+  if (!rawUrl || !rawUrl.includes("raw.githubusercontent.com")) return rawUrl;
+
+  try {
+    let repoUrl = rawUrl.replace("raw.githubusercontent.com", "github.com");
+
+    repoUrl = repoUrl.replace("refs/heads/", "blob/");
+
+    return repoUrl;
+  } catch (error) {
+    console.error("Error converting raw URL:", error);
+    return rawUrl;
+  }
+};
 
 // Common styling constants
 const BORDER_STYLE = "border-dashed border-white/20";
@@ -43,6 +61,7 @@ const StepHome = () => {
   const [percentage, setPercentage] = useState(0);
   const [step, setStep] = useState<StepItem>();
   const [messages, setMessages] = useState<UserMessage>();
+  const [currentStepIndex, setCurrentStepIndex] = useState<number>(-1);
 
   const params = useParams();
   const buildParam = params.build as string;
@@ -65,11 +84,13 @@ const StepHome = () => {
     initializeData();
   }, [buildParam]);
 
-  // Set up step data when build changes
+  // Set up step data and get current index when build changes
   useEffect(() => {
     if (!build) return;
 
     getBuildStepBySlug(build, courseParam, setStep);
+    const index = getCurrentStepIndex(build, courseParam);
+    setCurrentStepIndex(index);
   }, [build, courseParam]);
 
   // Set up user project data when user and build are available
@@ -234,23 +255,44 @@ const StepHome = () => {
         {/* Main Content */}
         <div className="ml-[20%] w-4/5 h-screen overflow-y-auto px-4 py-2">
           {/* Breadcrumb Navigation */}
-          <Breadcrumb className="mb-4">
-            <BreadcrumbList>
-              <BreadcrumbItem>
-                <BreadcrumbLink href="/builds">Builds</BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem>
-                <BreadcrumbLink href={`/builds/${buildParam}`}>
-                  {build.name}
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem className="capitalize">
-                <BreadcrumbPage>{courseParam}</BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
+          <div className="flex justify-between items-center mb-4">
+            <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem>
+                  <BreadcrumbLink href="/builds">Builds</BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbLink href={`/builds/${buildParam}`}>
+                    {build.name}
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem className="capitalize">
+                  <BreadcrumbPage>{courseParam}</BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
+
+            <div className="flex items-center gap-4">
+              <a
+                href={convertRawToRepoUrl(step.source)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:opacity-80 transition-all duration-200"
+              >
+                <RxGithubLogo className="w-6 h-6 text-white" />
+              </a>
+
+              <div className="bg-[#101010] px-4 py-2 rounded-md border border-white/10">
+                <span className="text-white font-bold">
+                  {currentStepIndex + 1}
+                </span>
+                <span className="text-white/50">/</span>
+                <span className="text-white/70">{build.stepsLength}</span>
+              </div>
+            </div>
+          </div>
 
           {/* Course Content */}
           <CourseMarkdown source={step.source} name={step.text} />
