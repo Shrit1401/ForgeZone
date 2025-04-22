@@ -30,6 +30,7 @@ const BuildHome = () => {
   const [userProject, setUserProject] = useState<ProjectUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [percentage, setPercentage] = useState(0);
+  const [error, setError] = useState<string | null>(null);
 
   const [isDiscordConnected, setIsDiscordConnected] = useState(false);
   const [isTwitterConnected, setIsTwitterConnected] = useState(false);
@@ -40,16 +41,37 @@ const BuildHome = () => {
   const buildParam = params.build as string;
 
   useEffect(() => {
-    getLoggedInUser(setUser, setLoading);
+    const fetchUser = async () => {
+      try {
+        await getLoggedInUser(setUser, setLoading);
+      } catch (err) {
+        console.error("Error fetching user:", err);
+        setError("Failed to load user data. Please try refreshing the page.");
+        setLoading(false);
+      }
+    };
+
+    fetchUser();
   }, []);
 
   useEffect(() => {
     const fetchBuild = async () => {
-      setLoading(true);
       try {
-        await getBuildBySlug(buildParam, setBuild);
+        if (!buildParam) {
+          setError("Build parameter is missing");
+          setLoading(false);
+          return;
+        }
+
+        console.log("Fetching build with slug:", buildParam);
+        const buildData = await getBuildBySlug(buildParam, setBuild);
+
+        if (!buildData) {
+          setError(`Build "${buildParam}" not found`);
+        }
       } catch (error) {
         console.error("Error fetching build:", error);
+        setError("Failed to load build data. Please try refreshing the page.");
       } finally {
         setLoading(false);
       }
@@ -60,6 +82,7 @@ const BuildHome = () => {
 
   useEffect(() => {
     if (user && build) {
+      console.log("User and build loaded, checking user project");
       const res = getProjectFromUser(user, build.name);
       if (res) {
         setIsDiscordConnected(res.isDiscordConnected);
@@ -67,9 +90,21 @@ const BuildHome = () => {
         setUserProject(res);
         setPercentage(Math.floor((res.current / res.total) * 100));
       } else {
+        console.log("No user project found for this build");
         setIsDiscordConnected(false);
         setIsTwitterConnected(false);
         setUserProject(null);
+
+        setUserProject({
+          projectname: build.name,
+          current: 0,
+          total: build.steps.reduce(
+            (acc, step) => acc + step.stepItems.length,
+            0
+          ),
+          isDiscordConnected: false,
+          isTwitterShared: false,
+        } as ProjectUser);
       }
     }
   }, [user, build]);
@@ -77,7 +112,7 @@ const BuildHome = () => {
   useEffect(() => {
     if (twitterUrl) {
       window.open(twitterUrl, "_blank");
-      setTwitterUrl(null); // Reset after opening
+      setTwitterUrl(null);
     }
   }, [twitterUrl]);
 
@@ -102,8 +137,114 @@ const BuildHome = () => {
     setTwitterUrl(`https://twitter.com/intent/tweet?text=${twitterText}`);
   };
 
-  if (loading || !build || !user || !userProject) {
+  if (error) {
+    return (
+      <div className="mt-[5rem] h-screen flex items-center justify-center">
+        <div className="text-center p-8 bg-red-900/20 border border-red-500/30 rounded-lg">
+          <h2 className="text-xl font-bold text-white mb-2">
+            Error Loading Page
+          </h2>
+          <p className="text-white/70 mb-4">{error}</p>
+          <Btn
+            title="Go Back to Builds"
+            className="w-fit mx-auto"
+            onClick={() => (window.location.href = "/builds")}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  if (loading) {
+    console.log("Still loading...");
     return <BuildHomeSkeleton />;
+  }
+
+  if (!build) {
+    console.log("Build not found after loading");
+    return (
+      <div className="mt-[5rem] h-screen flex items-center justify-center">
+        <div className="text-center p-8 bg-yellow-900/20 border border-yellow-500/30 rounded-lg">
+          <h2 className="text-xl font-bold text-white mb-2">Build Not Found</h2>
+          <p className="text-white/70 mb-4">
+            We couldn't find the build you're looking for.
+          </p>
+          <Btn
+            title="Go Back to Builds"
+            className="w-fit mx-auto"
+            onClick={() => (window.location.href = "/builds")}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    console.log("User not found after loading");
+    return (
+      <div className="mt-[5rem] h-screen flex items-center justify-center">
+        <div className="text-center p-8 bg-blue-900/20 border border-blue-500/30 rounded-lg">
+          <h2 className="text-xl font-bold text-white mb-2">
+            Authentication Required
+          </h2>
+          <p className="text-white/70 mb-4">
+            Please login to access this build.
+          </p>
+          <Btn
+            title="Go to Login"
+            className="w-fit mx-auto"
+            onClick={() => (window.location.href = "/auth/start")}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  if (!userProject) {
+    console.log("UserProject not found, using fallback");
+    return (
+      <div className="mt-[5rem] h-screen flex">
+        <section className="flex w-full">
+          <Sidebar
+            slug={build.projectSlug}
+            current={0}
+            steps={build.steps}
+            image={build.activeImg}
+          />
+
+          <div className="left-[20%] h-screen border-l fixed border-dashed border-white/20" />
+          <div className="w-full mt-[4rem] fixed top-0 border-t border-dashed z-[999] border-white/20" />
+          <div className="ml-[20%] w-4/5 h-screen overflow-y-auto px-4 py-2 relative">
+            <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem>
+                  <BreadcrumbLink href="/">Home</BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbLink href="/builds">Builds</BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbPage>{build?.name || "Build Name"}</BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
+
+            <div className="flex flex-col items-center justify-center gap-1 mt-6">
+              <h2 className="manrope text-white font-[700] text-3xl mt-6">
+                Get Ready to Ship
+              </h2>
+              <p className="font-bold text-white/50 mt-2 w-[70%] text-center">
+                Join hundreds of builders in ML/AI to ship this build together.
+                Make sure to complete the tasks below to get the most out of
+                this build.
+              </p>
+            </div>
+          </div>
+        </section>
+      </div>
+    );
   }
 
   return (

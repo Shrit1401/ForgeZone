@@ -1,4 +1,5 @@
 export type SingleProject = {
+  id?: string;
   name: string;
   oneLiner: string;
   discordRole: string;
@@ -13,6 +14,7 @@ export type SingleProject = {
 };
 
 export type StepItem = {
+  id?: string;
   text: string;
   slug: string;
   source: string; // This maps to sourceUrl in the database schema
@@ -20,6 +22,7 @@ export type StepItem = {
 };
 
 export type Step = {
+  id?: string;
   name: string;
   stepItems: StepItem[];
 };

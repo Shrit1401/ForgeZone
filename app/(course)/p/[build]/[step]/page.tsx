@@ -27,6 +27,7 @@ import { ProjectUser, UserMessage, UserType } from "@/types/user.types";
 import { getLoggedInUser, updateUserBuild } from "@/lib/auth/auth";
 import { createProjectMessage } from "@/lib/build/builds.server";
 import { toast } from "sonner";
+import { getProgressMessage } from "@/lib/utils";
 
 // Common styling constants
 const BORDER_STYLE = "border-dashed border-white/20";
@@ -78,7 +79,10 @@ const StepHome = () => {
     const res = getProjectFromUser(user, build.name);
     if (res) {
       setUserProject(res);
-      setPercentage(Math.floor((res.current / res.total) * 100));
+      setPercentage(Math.floor(((res.current - 1) / build.stepsLength) * 100));
+
+      // Log user project details
+      console.log(res);
     }
   }, [user, build]);
 
@@ -118,8 +122,11 @@ const StepHome = () => {
       return;
     }
 
+    // Calculate if this will be the final step
+    const willComplete = userProject.current + 1 > build.stepsLength;
+
     // Update user build progress
-    const incDB = await updateUserBuild(
+    const updatedProject = await updateUserBuild(
       user.id,
       build,
       undefined,
@@ -128,14 +135,19 @@ const StepHome = () => {
       "Increase"
     );
 
-    if (!incDB) {
+    if (!updatedProject) {
       toast.error("Error updating user build");
       return;
     }
 
-    // Navigate to next step
-    const slug = getNextBuildPageSlug(build, userProject.current);
-    window.location.href = `/p/${build.projectSlug}/${slug}`;
+    // Log updated project after update
+    console.log("Project after update:", updatedProject);
+
+    if (willComplete) {
+      window.location.href = `/p/${build.projectSlug}/congo`;
+    } else {
+      window.location.href = `/p/${build.projectSlug}/${nextSlug}`;
+    }
   };
 
   // Show loading state when data is being fetched
@@ -147,6 +159,9 @@ const StepHome = () => {
   if (!build || !user || !userProject || !step) {
     return <CourseSkeleton />;
   }
+
+  // Log the userProject after checks
+  console.log("UserProject after checks:", userProject);
 
   // Derived state
   const messageExists = messages !== undefined;
@@ -254,7 +269,7 @@ const StepHome = () => {
           <ProgressCircle />
           <div>
             <h3 className="manrope text-white">{percentage}% Completed</h3>
-            <p className="text-white/30">1.5k builders ahead of you</p>
+            <p className="text-white/30">{getProgressMessage(percentage)}</p>
           </div>
         </div>
 
@@ -272,10 +287,18 @@ const StepHome = () => {
             </RequirementDialog>
           ) : (
             <Btn
-              title="Let's Go"
-              onClick={() =>
-                (window.location.href = `/p/${build.projectSlug}/${nextSlug}`)
+              title={
+                userProject.current >= build.stepsLength
+                  ? "Finish"
+                  : "Next Step"
               }
+              onClick={() => {
+                if (userProject.current > build.stepsLength) {
+                  window.location.href = `/p/${build.projectSlug}/congo`;
+                } else {
+                  window.location.href = `/p/${build.projectSlug}/${nextSlug}`;
+                }
+              }}
               className={BUTTON_BASE_STYLE}
             />
           )}

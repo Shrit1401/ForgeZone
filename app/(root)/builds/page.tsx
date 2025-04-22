@@ -1,7 +1,7 @@
 "use client";
 import BuildsCard from "@/components/builds/BuildsCard";
 import { getLoggedInUser } from "@/lib/auth/auth";
-import { getBuildFromUser, getBuilds } from "@/lib/build/build";
+import { getBuilds } from "@/lib/build/build";
 import { SingleProject } from "@/types/project.types";
 import { UserType } from "@/types/user.types";
 import React, { useEffect } from "react";
@@ -10,7 +10,6 @@ import { BuildsPageSkeleton } from "@/components/skeletons/buildHomeSkeleton";
 const BuildsPage = () => {
   const [user, setUser] = React.useState<UserType | undefined | null>();
   const [builds, setBuilds] = React.useState<SingleProject[]>([]);
-  const [userProjects, setUserProjects] = React.useState<SingleProject[]>([]);
   const [loading, setLoading] = React.useState(true);
 
   useEffect(() => {
@@ -23,18 +22,13 @@ const BuildsPage = () => {
     fetchData();
   }, []);
 
-  useEffect(() => {
-    if (!user || !builds) {
-      return;
-    }
-    getBuildFromUser(user, builds, setUserProjects);
-  }, [user, builds]);
+  const getBuildDetails = (projectName: string): SingleProject | undefined => {
+    return builds.find((build) => build.name === projectName);
+  };
 
+  const userProjectNames = user?.projects.map((p) => p.projectname) || [];
   const filteredBuilds = builds.filter(
-    (build) =>
-      !userProjects.some(
-        (userProject) => userProject.projectSlug === build.projectSlug
-      )
+    (build) => !userProjectNames.includes(build.name)
   );
 
   if (loading) {
@@ -43,25 +37,34 @@ const BuildsPage = () => {
 
   return (
     <div className="mt-[6rem] mx-auto max-w-7xl px-4 mb-10 ">
-      {user?.projects &&
-        user.projects.length > 0 &&
-        userProjects.length > 0 && (
-          <section className="mb-12">
-            <h2 className="text-3xl font-bold manrope">My Builds</h2>
-            <div className="flex flex-wrap mt-6">
-              {userProjects.map((project, index) => (
+      {user?.projects && user.projects.length > 0 && (
+        <section className="mb-12">
+          <h2 className="text-3xl font-bold manrope">My Builds</h2>
+          <div className="flex flex-wrap mt-6">
+            {user.projects.map((userProject, index) => {
+              const buildDetails = getBuildDetails(userProject.projectname);
+              if (!buildDetails) return null;
+
+              console.log("User Project:", userProject);
+              console.log("Build Details:", buildDetails);
+
+              return (
                 <BuildsCard
                   key={index}
-                  title={project.name}
-                  description={project.oneLiner}
-                  imageUrl={project.activeImg}
-                  link={project.projectSlug}
+                  title={buildDetails.name}
+                  description={buildDetails.oneLiner}
+                  imageUrl={buildDetails.activeImg}
+                  link={buildDetails.projectSlug}
                   mode={"user"}
+                  userCurrent={userProject.current}
+                  buildStepsLength={buildDetails.stepsLength}
                 />
-              ))}
-            </div>
-          </section>
-        )}
+              );
+            })}
+          </div>
+        </section>
+      )}
+
       <section>
         <h2 className="text-3xl font-bold manrope">Builds 🔥</h2>
         {filteredBuilds.length > 0 ? (
@@ -80,7 +83,7 @@ const BuildsPage = () => {
         ) : (
           <div className="mt-6 text-center py-10">
             <p className="text-xl text-gray-500 manrope font-bold">
-              No builds yet. Working on more!
+              No new builds available right now. Check back later!
             </p>
           </div>
         )}

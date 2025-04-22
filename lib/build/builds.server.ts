@@ -102,6 +102,12 @@ export async function updateUserProject(
     });
 
     if (existingProject) {
+      // Calculate new current value
+      const newCurrent =
+        current === "Increase"
+          ? existingProject.current + 1
+          : existingProject.current;
+
       const res = await db.projectUser.update({
         where: {
           id: existingProject.id,
@@ -110,10 +116,7 @@ export async function updateUserProject(
           isDiscordConnected:
             isDiscordConnected || existingProject.isDiscordConnected,
           isTwitterShared: isTwitterShared || existingProject.isTwitterShared,
-          current:
-            current == "Increase"
-              ? existingProject.current + 1
-              : existingProject.current,
+          current: newCurrent,
         },
       });
       return res;

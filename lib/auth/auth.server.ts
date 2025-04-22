@@ -90,6 +90,7 @@ export async function getUserById(id: string) {
         total: projectUser.total,
         current: projectUser.current,
         userId: projectUser.userId,
+        completed: projectUser.completed,
         messages: projectUser.messages.map((message) => ({
           id: message.id,
           message: message.message,
