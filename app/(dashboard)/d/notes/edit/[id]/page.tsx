@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { getNoteById, updateNote } from "@/lib/dashboard/notes/notes.server";
+import { GetNoteById, updateNote } from "@/lib/dashboard/notes/notes.server";
 import { useParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -40,7 +40,7 @@ export default function EditNote() {
     const fetchNote = async () => {
       setLoading(true);
       try {
-        const note = await getNoteById(id);
+        const note = await GetNoteById(id);
         if (note) {
           setForm({
             title: note.title,

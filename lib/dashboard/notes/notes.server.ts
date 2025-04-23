@@ -18,7 +18,7 @@ export const getNotes = async () => {
 };
 
 // Get a note by ID
-export const getNoteById = async (id: string) => {
+export const GetNoteById = async (id: string) => {
   try {
     const note = await db.note.findUnique({
       where: {

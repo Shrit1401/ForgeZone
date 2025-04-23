@@ -2,39 +2,53 @@
 import Btn from "@/components/Btn";
 import { createUser } from "@/lib/auth/auth.server";
 import { supabaseClient } from "@/supabase/client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react"; // Import Suspense
 import { useSearchParams, useRouter } from "next/navigation";
 
-const LoginPage = () => {
-  const [loading, setLoading] = useState<boolean>(false);
+// New component to contain the logic using useSearchParams
+function AuthAwesomeContent() {
+  const [loading, setLoading] = useState<boolean>(true); // Start loading initially
   const searchParams = useSearchParams();
   const router = useRouter();
   const redirectTo = searchParams.get("redirectTo");
 
   const handleMagicLinkLogin = async () => {
-    setLoading(true);
+    // setLoading(true); // Already true initially
     const {
       data: { user },
       error,
     } = await supabaseClient.auth.getUser();
     if (error) {
       console.log("Error fetching user:", error);
+      setLoading(false); // Stop loading on error
       return;
     }
     if (user) {
-      const res = await createUser(user);
-      if (res) {
-        setLoading(false);
-      } else {
-        console.log("Error creating user");
+      try {
+        const res = await createUser(user);
+        if (res) {
+          setLoading(false);
+        } else {
+          console.log("Error creating user");
+          setLoading(false);
+        }
+      } catch (createUserError) {
+        console.error("Error in createUser:", createUserError);
         setLoading(false);
       }
+    } else {
+      // Handle case where there is no user but no error (e.g., not logged in)
+      console.log("No user found.");
+      setLoading(false);
+      // Optionally redirect to login or show a message
+      // router.push('/login'); // Example redirect
     }
   };
 
   useEffect(() => {
     handleMagicLinkLogin();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Dependency array is empty as intended
 
   const handleGetStarted = () => {
     if (redirectTo) {
@@ -51,16 +65,21 @@ const LoginPage = () => {
       <div className="w-full md:w-1/2 flex items-center justify-center p-8">
         <div className="w-full mx-10">
           <h1 className="text-6xl manrope font-semibold mb-2">
-            {loading ? "Loading..." : "You're In"}
+            {loading ? "Verifying..." : "You're In"}{" "}
+            {/* Updated loading text */}
           </h1>
           <p className="text-xl manrope mb-8">
-            {loading ? "Loading..." : "Let's get you started!"}
+            {loading
+              ? "Please wait while we set things up..."
+              : "Let's get you started!"}{" "}
+            {/* Updated loading text */}
           </p>
           <Btn
             title="Get Started"
             className="w-full mt-4 py-2"
             type="outline"
             onClick={handleGetStarted}
+            disabled={loading} // Disable button while loading
           />
         </div>
       </div>
@@ -73,6 +92,17 @@ const LoginPage = () => {
         />
       </div>
     </div>
+  );
+}
+
+// Main page component wraps the content component with Suspense
+const LoginPage = () => {
+  return (
+    <Suspense fallback={<div>Loading page...</div>}>
+      {" "}
+      {/* Add Suspense boundary */}
+      <AuthAwesomeContent />
+    </Suspense>
   );
 };
 

@@ -24,6 +24,7 @@ type Note = {
   tag: string;
   cardImage: string;
   markdownUrl: string;
+  slug: string;
 };
 
 const NotesPage = () => {
@@ -129,7 +130,7 @@ const NotesPage = () => {
                   <CardFooter className="flex justify-between">
                     <div className="flex gap-2">
                       <Button variant="outline" asChild>
-                        <Link href={`/d/notes/edit/${note.id}`}>Edit</Link>
+                        <Link href={`/d/notes/edit/${note.slug}`}>Edit</Link>
                       </Button>
                       <Button
                         variant="destructive"

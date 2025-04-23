@@ -1,5 +1,5 @@
 import { Note } from "@prisma/client";
-import { getNotes } from "../dashboard/notes/notes.server";
+import { GetNoteById, getNotes } from "../dashboard/notes/notes.server";
 
 export async function getAllNotes(
   setNotes: React.Dispatch<React.SetStateAction<Note[]>>
@@ -18,15 +18,14 @@ export async function getNoteById(
   setNote: React.Dispatch<React.SetStateAction<Note | null>>
 ) {
   try {
-    const res = await fetch(`/api/notes/${slug}`);
-    const data = await res.json();
+    const res = await GetNoteById(slug);
 
-    if (!data || !data.note) {
+    if (!res) {
       return null;
     }
 
-    setNote(data.note);
-    return data.note;
+    setNote(res);
+    return res;
   } catch (error) {
     console.error("Error fetching note:", error);
     return null;
