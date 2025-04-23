@@ -14,12 +14,11 @@ const LoginContent = () => {
 
   // Get the redirectTo parameter from the URL
   const searchParams = useSearchParams();
-  const redirectTo = searchParams.get("redirectTo");
 
   const handleLogin = async (email: string) => {
     setLoading(true);
-    // Pass the redirectTo parameter to the sign-in function
-    const res = await signInWithEmail(email, redirectTo || undefined);
+    // Pass the hardcoded redirect URI to the sign-in function
+    const res = await signInWithEmail(email, "/auth-sucess");
     if (res) {
       console.log("Login successful:", res);
       setSuccessfulLogin(true);
