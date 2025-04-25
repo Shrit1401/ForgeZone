@@ -1,11 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
+import { HomeMetadata } from "@/lib/metadatas";
 
-export const metadata: Metadata = {
-  title: "Forge Zone",
-  description: "forge zone",
-};
+export const metadata: Metadata = HomeMetadata;
 export default function RootLayout({
   children,
 }: Readonly<{

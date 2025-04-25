@@ -2,18 +2,15 @@
 import Btn from "@/components/Btn";
 import { createUser } from "@/lib/auth/auth.server";
 import { supabaseClient } from "@/supabase/client";
-import { useEffect, useState, Suspense } from "react"; // Import Suspense
-import { useSearchParams, useRouter } from "next/navigation";
+import { useEffect, useState, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 
-// New component to contain the logic using useSearchParams
 function AuthAwesomeContent() {
-  const [loading, setLoading] = useState<boolean>(true); // Start loading initially
+  const [loading, setLoading] = useState<boolean>(true);
   const searchParams = useSearchParams();
-  const router = useRouter();
   const redirectTo = searchParams.get("redirectTo");
 
   const handleMagicLinkLogin = async () => {
-    // setLoading(true); // Already true initially
     const {
       data: { user },
       error,
@@ -96,7 +93,7 @@ function AuthAwesomeContent() {
 }
 
 // Main page component wraps the content component with Suspense
-const LoginPage = () => {
+const AuthCorrectPage = () => {
   return (
     <Suspense fallback={<div>Loading page...</div>}>
       {" "}
@@ -106,4 +103,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default AuthCorrectPage;

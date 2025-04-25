@@ -48,7 +48,7 @@ const Footer: React.FC = () => {
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-6 mt-4 md:mt-0">
           <div>
-            <h4 className="text-lg font-semibold">Weekend Builds</h4>
+            <h4 className="text-lg font-semibold">Builds</h4>
             <ul className="text-white/60 space-y-2">
               {builds.length > 0 ? (
                 builds.map((build) => (
@@ -85,26 +85,25 @@ const Footer: React.FC = () => {
           </div>
           <div>
             <h4 className="text-lg font-semibold">About</h4>
-            <ul className="text-white/60  space-y-2">
-              <li>
-                <Link href="./notes" className="hover:text-gray-300">
-                  Notes
-                </Link>
-              </li>
-              <li>
-                <Link href="./work" className="hover:text-gray-300">
-                  Work
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="https://discord.gg/e3RfmAVAXV"
-                  target="_blank"
-                  className="hover:text-gray-300"
-                >
-                  Discord
-                </Link>
-              </li>
+            <ul className="text-white/60 space-y-2">
+              {[
+                { href: "./notes", label: "Notes" },
+                {
+                  href: "https://discord.gg/e3RfmAVAXV",
+                  label: "Discord",
+                  external: true,
+                },
+              ].map((link, index) => (
+                <li key={index}>
+                  <Link
+                    href={link.href}
+                    target={link.external ? "_blank" : undefined}
+                    className="hover:text-gray-300"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
         </div>
@@ -112,12 +111,14 @@ const Footer: React.FC = () => {
       <div className="mt-6 flex flex-col md:flex-row justify-between items-center text-white/60  text-sm">
         <p>© {new Date().getFullYear()} Forge Zone.</p>
         <div className="flex space-x-4">
-          <Link href="./privacy" className="hover:text-gray-300">
-            Privacy Policy
-          </Link>
-          <Link href="./tos" className="hover:text-gray-300">
-            Terms of Service
-          </Link>
+          {[
+            { href: "./privacy", label: "Privacy Policy" },
+            { href: "./tos", label: "Terms of Service" },
+          ].map((link, index) => (
+            <Link key={index} href={link.href} className="hover:text-gray-300">
+              {link.label}
+            </Link>
+          ))}
         </div>
       </div>
     </footer>

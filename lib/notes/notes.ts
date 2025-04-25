@@ -15,8 +15,11 @@ export async function getAllNotes(
 
 export async function getNoteById(
   slug: string,
-  setNote: React.Dispatch<React.SetStateAction<Note | null>>
+  setNote?: React.Dispatch<React.SetStateAction<Note | null>>
 ) {
+  if (!slug) {
+    return null;
+  }
   try {
     const res = await GetNoteById(slug);
 
@@ -24,7 +27,9 @@ export async function getNoteById(
       return null;
     }
 
-    setNote(res);
+    if (setNote) {
+      setNote(res);
+    }
     return res;
   } catch (error) {
     console.error("Error fetching note:", error);

@@ -1,8 +1,12 @@
-"use client";
-
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
+
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Terms of Service",
+};
 
 const TermsOfServicePage = () => {
   return (

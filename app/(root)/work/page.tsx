@@ -1,5 +1,9 @@
+import { Metadata } from "next";
 import React from "react";
 
+export const metadata: Metadata = {
+  title: "Work",
+};
 const WorkPage = () => {
   return (
     <div className="mt-[4rem] sm:mt-[6rem] mx-auto max-w-7xl px-2 sm:px-4 mb-10">

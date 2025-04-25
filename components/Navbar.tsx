@@ -46,7 +46,7 @@ const Navbar = () => {
   const [menuOpen, setMenuOpen] = React.useState(false);
   const links = [
     { name: "builds", link: "/builds" },
-    { name: "work", link: "/work" },
+    // { name: "work", link: "/work" },
     { name: "notes", link: "/notes" },
     {
       name: "discord",

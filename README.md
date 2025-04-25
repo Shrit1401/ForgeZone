@@ -20,6 +20,18 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Environment Variables
+
+The application supports the following environment variables:
+
+- `DISABLE_PROTECTED_ROUTES`: Set to "true" to disable authentication checks for protected routes. Useful for development or testing.
+
+To use this in development, you can add it to your `.env.local` file:
+
+```
+DISABLE_PROTECTED_ROUTES=true
+```
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

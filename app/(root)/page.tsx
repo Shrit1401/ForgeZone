@@ -1,8 +1,5 @@
 import React from "react";
-import { ArrowRightIcon } from "@heroicons/react/16/solid";
 import Btn from "@/components/Btn";
-import Link from "next/link";
-// 0HAyc3J
 const Home = () => {
   return (
     <div>

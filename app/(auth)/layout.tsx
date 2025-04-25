@@ -1,6 +1,9 @@
 import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 
+import { AuthenticationMetadata } from "@/lib/metadatas";
+import { Metadata } from "next";
+
+export const metadata: Metadata = AuthenticationMetadata;
 export default function RootLayout({
   children,
 }: Readonly<{

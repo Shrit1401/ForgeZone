@@ -1,8 +1,15 @@
-"use client";
-
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Privacy Policy",
+  robots: {
+    index: true,
+    follow: true,
+  },
+};
 
 const PrivacyPolicyPage = () => {
   return (
