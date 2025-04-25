@@ -8,6 +8,7 @@ type BtnProps = {
   size?: "small" | "medium" | "large";
   type?: "normal" | "outline" | "ghost";
   sideIcon?: React.ReactNode;
+  target?: "_blank" | "_self" | "_parent" | "_top";
   onClick?: () => void;
   disabled?: boolean;
 };
@@ -18,6 +19,7 @@ const Btn: React.FC<BtnProps> = ({
   className,
   size = "medium",
   type = "normal",
+  target = "_self",
   sideIcon = null,
   disabled = false,
   onClick,
@@ -38,7 +40,12 @@ const Btn: React.FC<BtnProps> = ({
 
   if (link) {
     return (
-      <Link href={link} className={styles}>
+      <Link
+        href={link}
+        className={styles}
+        target={target}
+        rel="noopener noreferrer"
+      >
         {sideIcon && <span className="mr-2">{sideIcon}</span>}
         {title}
       </Link>
