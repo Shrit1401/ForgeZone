@@ -7,7 +7,12 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { createProject } from "@/lib/dashboard/projectdashboard.server";
-import { Step, SingleProject, StepItem } from "@/types/project.types";
+import {
+  Step,
+  SingleProject,
+  StepItem,
+  ProjectType,
+} from "@/types/project.types";
 import {
   Select,
   SelectContent,
@@ -15,7 +20,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ProjectType } from "@prisma/client";
 import { toast } from "sonner";
 
 type ProjectForm = Omit<SingleProject, "stepsLength">;
@@ -30,7 +34,7 @@ export default function CreateSingleProject() {
     normalImg: "",
     activeImg: "",
     projectSlug: "",
-    projectType: "none",
+    projectType: ProjectType.none,
     steps: [],
   });
 
@@ -177,11 +181,11 @@ export default function CreateSingleProject() {
             <div className="space-y-2">
               <Label htmlFor="projectType">Project Type</Label>
               <Select
-                value={form.projectType}
+                value={form.projectType.toString()}
                 onValueChange={(value) =>
                   setForm((prev) => ({
                     ...prev,
-                    projectType: value as ProjectType,
+                    projectType: Number(value) as ProjectType,
                   }))
                 }
               >
@@ -189,9 +193,15 @@ export default function CreateSingleProject() {
                   <SelectValue placeholder="Select a project type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="none">None</SelectItem>
-                  <SelectItem value="weekend">Weekend</SelectItem>
-                  <SelectItem value="advance">Advanced</SelectItem>
+                  <SelectItem value={ProjectType.none.toString()}>
+                    None
+                  </SelectItem>
+                  <SelectItem value={ProjectType.weekend.toString()}>
+                    Weekend
+                  </SelectItem>
+                  <SelectItem value={ProjectType.advance.toString()}>
+                    Advanced
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>

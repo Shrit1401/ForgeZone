@@ -3,14 +3,17 @@ import { getNoteById } from "@/lib/notes/notes";
 import { Metadata } from "next";
 import React from "react";
 
-type Props = {
-  params: {
-    note: string;
-  };
-};
+type Params = Promise<{
+  note: string;
+}>;
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const notesSlug = params.note;
+export async function generateMetadata({
+  params,
+}: {
+  params: Params;
+}): Promise<Metadata> {
+  const { note } = await params;
+  const notesSlug = note;
 
   const notes = await getNoteById(notesSlug);
 
@@ -35,8 +38,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-const NotesPage = () => {
-  return <NotesClient />;
+const NotesPage = async ({ params }: { params: Params }) => {
+  const { note } = await params;
+  return <NotesClient slug={note} />;
 };
 
 export default NotesPage;

@@ -1,5 +1,3 @@
-import { ProjectType } from "@prisma/client";
-
 export type SingleProject = {
   id?: string;
   name: string;
@@ -14,6 +12,13 @@ export type SingleProject = {
   stepsLength: number;
   steps: Step[];
 };
+
+export enum ProjectType {
+  none,
+  weekend,
+  advance,
+}
+
 export type StepItem = {
   id?: string;
   text: string;

@@ -1,7 +1,7 @@
 import React from "react";
 import Btn from "../Btn";
 import { TrophyIcon, TagIcon } from "@heroicons/react/16/solid";
-import { ProjectType } from "@prisma/client";
+import { ProjectType } from "@/types/project.types";
 
 type BuildsCardProps = {
   title: string;
@@ -45,14 +45,17 @@ const BuildsCard = ({
             </div>
           </div>
         )}
-        {buildType !== "none" && (
-          <div className="absolute top-2 left-2 z-10">
-            <div className="bg-yellow-400 text-black font-bold text-xs px-2 py-1 rounded-full flex items-center">
-              <TagIcon className="w-3 h-3 mr-1 capitalize" />
-              {buildType === "weekend" ? "Weekend" : "Advance"} Build
+        {buildType &&
+          (buildType === ProjectType.weekend ||
+            buildType === ProjectType.advance) && (
+            <div className="absolute top-2 left-2 z-10">
+              <div className="bg-yellow-400 text-black font-bold text-xs px-2 py-1 rounded-full flex items-center">
+                <TagIcon className="w-3 h-3 mr-1 capitalize" />
+                {buildType === ProjectType.weekend ? "Weekend" : "Advance"}{" "}
+                Build
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
         <div
           className="relative aspect-[16/9] bg-cover bg-center"

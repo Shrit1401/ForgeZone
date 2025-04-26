@@ -4,13 +4,15 @@ import type { Metadata } from "next";
 import { GetBuildBySlug } from "@/lib/build/builds.server";
 import BuildInitalClient from "@/components/clientPages/Builds/BuildInitalClient";
 
-type Props = {
-  params: {
-    build: string;
-  };
-};
+type Params = Promise<{
+  build: string;
+}>;
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Params;
+}): Promise<Metadata> {
   const { build } = await params;
   const buildSlug = String(build);
   const buildData = await GetBuildBySlug(buildSlug);
@@ -38,7 +40,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function BuildHome({ params }: Props) {
+export default async function BuildHome({ params }: { params: Params }) {
   const { build } = await params;
   const buildSlug = String(build);
   return <BuildInitalClient buildSlug={buildSlug} />;

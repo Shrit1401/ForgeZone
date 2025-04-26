@@ -2,17 +2,18 @@ import React from "react";
 import type { Metadata } from "next";
 
 import { GetBuildBySlug } from "@/lib/build/builds.server";
-import BuildInitalClient from "@/components/clientPages/Builds/BuildInitalClient";
 import Btn from "@/components/Btn";
 import BuildsCongoClient from "@/components/clientPages/Builds/BuildsCongoClient";
 
-type Props = {
-  params: {
-    build: string;
-  };
-};
+type Params = Promise<{
+  build: string;
+}>;
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Params;
+}): Promise<Metadata> {
   const { build } = await params;
   const buildSlug = String(build);
   const buildData = await GetBuildBySlug(buildSlug);
@@ -40,11 +41,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function BuildHome({ params }: Props) {
-  const buildSlug = params.build;
-  const build = await GetBuildBySlug(buildSlug);
+export default async function BuildHome({ params }: { params: Params }) {
+  const { build } = await params;
+  const buildSlug = String(build);
+  const buildData = await GetBuildBySlug(buildSlug);
 
-  if (!build) {
+  if (!buildData) {
     return (
       <div className="mt-[5rem] h-screen flex items-center justify-center">
         <div className="text-center p-8 bg-red-900/20 border border-red-500/30 rounded-lg">

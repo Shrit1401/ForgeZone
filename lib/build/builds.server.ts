@@ -1,6 +1,6 @@
 "use server";
 import db from "@/lib/db";
-import { SingleProject } from "@/types/project.types";
+import { ProjectType, SingleProject } from "@/types/project.types";
 import { UserMessage } from "@/types/user.types";
 
 export const getAllBuilds = async () => {
@@ -15,26 +15,37 @@ export const getAllBuilds = async () => {
       },
     });
 
-    const builds: SingleProject[] = allBuilds.map((build) => ({
-      id: build.id,
-      name: build.name,
-      oneLiner: build.oneLiner,
-      discordRole: build.discordRole,
-      twitterMessage: build.twitterMessage,
-      isFeatured: build.isFeatured,
-      normalImg: build.normalImg,
-      projectType: build.projectType,
-      activeImg: build.activeImg,
-      projectSlug: build.projectSlug,
-      stepsLength: build.stepsLength,
-      steps: build.steps.map((step) => ({
-        ...step,
-        stepItems: step.stepItems.map((item) => ({
-          ...item,
-          source: item.sourceUrl,
-        })),
-      })),
-    }));
+    const builds: SingleProject[] = allBuilds.map((build) => {
+      {
+        const projectType =
+          build.projectType === "none"
+            ? ProjectType.none
+            : build.projectType === "weekend"
+            ? ProjectType.weekend
+            : ProjectType.advance;
+
+        return {
+          id: build.id,
+          name: build.name,
+          oneLiner: build.oneLiner,
+          discordRole: build.discordRole,
+          twitterMessage: build.twitterMessage,
+          isFeatured: build.isFeatured,
+          normalImg: build.normalImg,
+          projectType: projectType,
+          activeImg: build.activeImg,
+          projectSlug: build.projectSlug,
+          stepsLength: build.stepsLength,
+          steps: build.steps.map((step) => ({
+            ...step,
+            stepItems: step.stepItems.map((item) => ({
+              ...item,
+              source: item.sourceUrl,
+            })),
+          })),
+        };
+      }
+    });
 
     return builds;
   } catch (error) {

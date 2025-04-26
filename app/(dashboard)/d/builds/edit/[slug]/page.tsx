@@ -8,7 +8,12 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { GetBuildBySlug } from "@/lib/build/builds.server";
 import { updateProject } from "@/lib/dashboard/projectdashboard.server";
-import { Step, SingleProject, StepItem } from "@/types/project.types";
+import {
+  Step,
+  SingleProject,
+  StepItem,
+  ProjectType,
+} from "@/types/project.types";
 import { useParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
 import {
@@ -18,7 +23,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ProjectType } from "@prisma/client";
 
 type ProjectForm = Omit<SingleProject, "stepsLength">;
 

@@ -6,9 +6,8 @@ import { getNoteById } from "@/lib/notes/notes";
 import { Note } from "@prisma/client";
 import NoteDetailSkeleton from "@/components/skeletons/NoteDetailSkeleton";
 
-const NotesClient = () => {
-  const params = useParams();
-  const noteId = params.note as string;
+const NotesClient = ({ slug }: { slug: string }) => {
+  const noteId = slug;
   const [note, setNote] = useState<Note | null>(null);
   const [loading, setLoading] = useState(true);
 

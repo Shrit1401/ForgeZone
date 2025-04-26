@@ -12,8 +12,8 @@ const DashboardNavbar = () => {
   const links = [
     { name: "builds", link: "/d/builds" },
     {
-      name: "work",
-      link: "/d/work",
+      name: "notes",
+      link: "/d/notes",
     },
   ];
 
