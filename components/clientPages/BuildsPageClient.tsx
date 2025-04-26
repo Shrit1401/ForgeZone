@@ -6,7 +6,6 @@ import { getBuilds } from "@/lib/build/build";
 import { SingleProject } from "@/types/project.types";
 import { UserType } from "@/types/user.types";
 import { BuildsPageSkeleton } from "@/components/skeletons/buildHomeSkeleton";
-import cache from "react";
 
 const BuildsPageClient = () => {
   const [user, setUser] = React.useState<UserType | undefined | null>();
@@ -22,6 +21,8 @@ const BuildsPageClient = () => {
 
     fetchData();
   }, []);
+
+  console.log("Builds Data:", builds);
 
   const getBuildDetails = (projectName: string): SingleProject | undefined => {
     return builds.find((build) => build.name === projectName);
@@ -58,6 +59,7 @@ const BuildsPageClient = () => {
                   link={buildDetails.projectSlug}
                   mode={"user"}
                   userCurrent={userProject.current}
+                  buildType={buildDetails.projectType}
                   buildStepsLength={buildDetails.stepsLength}
                 />
               );
@@ -77,6 +79,7 @@ const BuildsPageClient = () => {
                 description={build.oneLiner}
                 imageUrl={build.activeImg}
                 link={build.projectSlug}
+                buildType={build.projectType}
                 mode="unknown"
               />
             ))}

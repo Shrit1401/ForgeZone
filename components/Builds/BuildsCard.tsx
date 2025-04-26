@@ -1,6 +1,7 @@
 import React from "react";
 import Btn from "../Btn";
-import { TrophyIcon } from "@heroicons/react/16/solid";
+import { TrophyIcon, TagIcon } from "@heroicons/react/16/solid";
+import { ProjectType } from "@prisma/client";
 
 type BuildsCardProps = {
   title: string;
@@ -10,6 +11,7 @@ type BuildsCardProps = {
   mode: "user" | "unknown";
   userCurrent?: number; // Added for progress tracking
   buildStepsLength?: number; // Added for progress tracking
+  buildType?: ProjectType; // Added for build type
 };
 
 const BuildsCard = ({
@@ -18,6 +20,7 @@ const BuildsCard = ({
   imageUrl,
   link,
   mode,
+  buildType,
   userCurrent, // Added
   buildStepsLength, // Added
 }: BuildsCardProps) => {
@@ -29,18 +32,24 @@ const BuildsCard = ({
 
   return (
     <div className="w-full sm:w-1/2 lg:w-1/3 p-3">
-      {/* Apply conditional border classes */}
       <div
         className={`h-full flex flex-col bg-[#151515] border-2 ${
           isCompleted ? "border-green-500" : "border-transparent"
         } transition-all duration-300 rounded-xl overflow-hidden group relative`}
       >
-        {/* Completion Badge */}
         {isCompleted && (
           <div className="absolute top-2 right-2 z-10">
             <div className="bg-green-500 text-black font-bold text-xs px-2 py-1 rounded-full flex items-center">
               <TrophyIcon className="w-3 h-3 mr-1" />
               COMPLETED
+            </div>
+          </div>
+        )}
+        {buildType !== "none" && (
+          <div className="absolute top-2 left-2 z-10">
+            <div className="bg-yellow-400 text-black font-bold text-xs px-2 py-1 rounded-full flex items-center">
+              <TagIcon className="w-3 h-3 mr-1 capitalize" />
+              {buildType === "weekend" ? "Weekend" : "Advance"} Build
             </div>
           </div>
         )}

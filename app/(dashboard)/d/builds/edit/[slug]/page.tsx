@@ -11,6 +11,14 @@ import { updateProject } from "@/lib/dashboard/projectdashboard.server";
 import { Step, SingleProject, StepItem } from "@/types/project.types";
 import { useParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { ProjectType } from "@prisma/client";
 
 type ProjectForm = Omit<SingleProject, "stepsLength">;
 
@@ -30,6 +38,7 @@ export default function EditProject() {
     normalImg: "",
     activeImg: "",
     projectSlug: "",
+    projectType: "none",
     steps: [],
   });
 
@@ -48,6 +57,7 @@ export default function EditProject() {
             normalImg: build.normalImg,
             activeImg: build.activeImg,
             projectSlug: build.projectSlug,
+            projectType: build.projectType,
             steps: build.steps,
           });
         } else {
@@ -225,6 +235,28 @@ export default function EditProject() {
                 placeholder="URL-friendly identifier"
                 required
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="projectType">Project Type</Label>
+              <Select
+                value={form.projectType}
+                onValueChange={(value) =>
+                  setForm((prev) => ({
+                    ...prev,
+                    projectType: value as ProjectType,
+                  }))
+                }
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select a project type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">None</SelectItem>
+                  <SelectItem value="weekend">Weekend</SelectItem>
+                  <SelectItem value="advance">Advanced</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 

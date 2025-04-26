@@ -70,18 +70,25 @@ model Message {
 
 // Project
 
+enum ProjectType {
+  none
+  weekend
+  advance
+}
+
 model SingleProject {
-  id             String  @id @default(cuid())
+  id             String      @id @default(cuid())
   name           String
   oneLiner       String
   discordRole    String
   twitterMessage String
-  isFeatured     Boolean @default(false)
+  isFeatured     Boolean     @default(false)
   normalImg      String
   activeImg      String
   // timeToGoLive   DateTime? future implementation
-  projectSlug    String  @unique
+  projectSlug    String      @unique
   stepsLength    Int
+  projectType    ProjectType @default(none)
   steps          Step[]
 }
 

@@ -14,7 +14,7 @@ export const createProject = async (project: SingleProject, steps: Step[]) => {
         normalImg: project.normalImg,
         activeImg: project.activeImg,
         projectSlug: project.projectSlug,
-
+        projectType: project.projectType,
         stepsLength: project.stepsLength,
 
         steps: {
@@ -66,6 +66,7 @@ export const getBuildById = async (id: string) => {
       normalImg: build.normalImg,
       activeImg: build.activeImg,
       projectSlug: build.projectSlug,
+      projectType: build.projectType,
       stepsLength: build.stepsLength,
       steps: build.steps.map((step) => ({
         ...step,
@@ -115,6 +116,7 @@ export const updateProject = async (
         normalImg: project.normalImg,
         activeImg: project.activeImg,
         projectSlug: project.projectSlug,
+        projectType: project.projectType,
         stepsLength: project.stepsLength,
       },
     });

@@ -1,7 +1,7 @@
 "use server";
 import db from "@/lib/db";
 import { SingleProject } from "@/types/project.types";
-import { UserMessage, UserType } from "@/types/user.types";
+import { UserMessage } from "@/types/user.types";
 
 export const getAllBuilds = async () => {
   try {
@@ -23,6 +23,7 @@ export const getAllBuilds = async () => {
       twitterMessage: build.twitterMessage,
       isFeatured: build.isFeatured,
       normalImg: build.normalImg,
+      projectType: build.projectType,
       activeImg: build.activeImg,
       projectSlug: build.projectSlug,
       stepsLength: build.stepsLength,
@@ -67,6 +68,7 @@ export const GetBuildBySlug = async (slug: string) => {
       twitterMessage: build.twitterMessage,
       isFeatured: build.isFeatured,
       normalImg: build.normalImg,
+      projectType: build.projectType,
       activeImg: build.activeImg,
       projectSlug: build.projectSlug,
       stepsLength: build.stepsLength,

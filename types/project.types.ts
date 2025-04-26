@@ -1,3 +1,5 @@
+import { ProjectType } from "@prisma/client";
+
 export type SingleProject = {
   id?: string;
   name: string;
@@ -8,11 +10,10 @@ export type SingleProject = {
   normalImg: string;
   activeImg: string;
   projectSlug: string;
-
+  projectType: ProjectType;
   stepsLength: number;
   steps: Step[];
 };
-
 export type StepItem = {
   id?: string;
   text: string;

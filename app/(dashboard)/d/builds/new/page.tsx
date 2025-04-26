@@ -5,8 +5,17 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { createProject } from "@/lib/dashboard/projectdashboard.server";
 import { Step, SingleProject, StepItem } from "@/types/project.types";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { ProjectType } from "@prisma/client";
 
 type ProjectForm = Omit<SingleProject, "stepsLength">;
 
@@ -20,6 +29,7 @@ export default function CreateSingleProject() {
     normalImg: "",
     activeImg: "",
     projectSlug: "",
+    projectType: "none",
     steps: [],
   });
 
@@ -123,26 +133,125 @@ export default function CreateSingleProject() {
 
       <form onSubmit={handleSubmit} className="space-y-10 text-white">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {(Object.keys(form) as (keyof ProjectForm)[])
-            .filter((key) => key !== "steps" && key !== "isFeatured")
-            .map((field) => (
-              <div key={field} className="space-y-2">
-                <Label htmlFor={field}>{field}</Label>
-                <Input
-                  name={field}
-                  id={field}
-                  value={form[field] as string}
-                  onChange={handleChange}
-                  placeholder={field}
-                  required={[
-                    "name",
-                    "normalImg",
-                    "activeImg",
-                    "projectSlug",
-                  ].includes(field)}
-                />
-              </div>
-            ))}
+          {/* Basic Info Fields */}
+          <div className="space-y-4">
+            <h2 className="text-xl font-semibold">Basic Information</h2>
+            <div className="space-y-2">
+              <Label htmlFor="name">Name</Label>
+              <Input
+                name="name"
+                id="name"
+                value={form.name}
+                onChange={handleChange}
+                placeholder="Build Name"
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="oneLiner">Description</Label>
+              <Textarea
+                name="oneLiner"
+                id="oneLiner"
+                value={form.oneLiner}
+                onChange={(e) =>
+                  setForm((prev) => ({ ...prev, oneLiner: e.target.value }))
+                }
+                placeholder="Brief description of the build"
+                rows={3}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="projectSlug">Project Slug</Label>
+              <Input
+                name="projectSlug"
+                id="projectSlug"
+                value={form.projectSlug}
+                onChange={handleChange}
+                placeholder="URL-friendly identifier"
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="projectType">Project Type</Label>
+              <Select
+                value={form.projectType}
+                onValueChange={(value) =>
+                  setForm((prev) => ({
+                    ...prev,
+                    projectType: value as ProjectType,
+                  }))
+                }
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select a project type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">None</SelectItem>
+                  <SelectItem value="weekend">Weekend</SelectItem>
+                  <SelectItem value="advance">Advanced</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* Images and Social Fields */}
+          <div className="space-y-4">
+            <h2 className="text-xl font-semibold">Media & Integration</h2>
+            <div className="space-y-2">
+              <Label htmlFor="normalImg">Normal Image URL</Label>
+              <Input
+                name="normalImg"
+                id="normalImg"
+                value={form.normalImg}
+                onChange={handleChange}
+                placeholder="URL to image when inactive"
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="activeImg">Active Image URL</Label>
+              <Input
+                name="activeImg"
+                id="activeImg"
+                value={form.activeImg}
+                onChange={handleChange}
+                placeholder="URL to image when active"
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="discordRole">Discord Role ID</Label>
+              <Input
+                name="discordRole"
+                id="discordRole"
+                value={form.discordRole}
+                onChange={handleChange}
+                placeholder="Discord role ID for integration"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="twitterMessage">Twitter Message</Label>
+              <Textarea
+                name="twitterMessage"
+                id="twitterMessage"
+                value={form.twitterMessage}
+                onChange={(e) =>
+                  setForm((prev) => ({
+                    ...prev,
+                    twitterMessage: e.target.value,
+                  }))
+                }
+                placeholder="Default Twitter share message"
+                rows={3}
+              />
+            </div>
+          </div>
         </div>
 
         <div className="flex items-center gap-3">
