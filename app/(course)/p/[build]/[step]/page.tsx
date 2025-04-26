@@ -2,16 +2,13 @@ import React from "react";
 import type { Metadata } from "next";
 
 import { GetBuildBySlug } from "@/lib/build/builds.server";
-import Btn from "@/components/Btn";
 import BuildsStepClient from "@/components/clientPages/Builds/BuildsStepClient";
 
-type Props = {
-  params: {
-    build: string;
-  };
-};
-
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: { build: string; step: string };
+}): Promise<Metadata> {
   const buildSlug = params.build;
   const build = await GetBuildBySlug(buildSlug);
 
@@ -38,6 +35,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function BuildStep({ params }: Props) {
+export default async function BuildStep({
+  params,
+}: {
+  params: { build: string; step: string };
+}) {
   return <BuildsStepClient />;
 }
