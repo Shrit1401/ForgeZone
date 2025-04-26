@@ -5,7 +5,6 @@ import { XCircleIcon, CheckCircleIcon } from "@heroicons/react/16/solid";
 import { FaTwitter } from "react-icons/fa";
 import Btn from "@/components/Btn";
 import Sidebar from "@/components/build/Sidebar";
-import { useParams } from "next/navigation";
 
 import {
   Breadcrumb,
@@ -24,7 +23,7 @@ import { getLoggedInUser, updateUserBuild } from "@/lib/auth/auth";
 import { toast } from "sonner";
 import Bottombar from "@/components/build/Bottombar";
 
-const BuildInitalClient = ({}) => {
+const BuildInitalClient = ({ buildSlug }: { buildSlug: string }) => {
   const [build, setBuild] = useState<SingleProject>();
   const [user, setUser] = useState<UserType | null | undefined>();
   const [userProject, setUserProject] = useState<ProjectUser | null>(null);
@@ -37,8 +36,7 @@ const BuildInitalClient = ({}) => {
 
   const [twitterUrl, setTwitterUrl] = useState<string | null>(null);
 
-  const params = useParams();
-  const buildParam = params.build as string;
+  const buildParam = buildSlug;
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -81,7 +79,6 @@ const BuildInitalClient = ({}) => {
 
   useEffect(() => {
     if (user && build) {
-      console.log("User and build loaded, checking user project");
       const res = getProjectFromUser(user, build.name);
       if (res) {
         setIsDiscordConnected(res.isDiscordConnected);
@@ -89,7 +86,6 @@ const BuildInitalClient = ({}) => {
         setUserProject(res);
         setPercentage(Math.floor((res.current / res.total) * 100));
       } else {
-        console.log("No user project found for this build");
         setIsDiscordConnected(false);
         setIsTwitterConnected(false);
         setUserProject(null);
@@ -155,12 +151,10 @@ const BuildInitalClient = ({}) => {
   }
 
   if (loading) {
-    console.log("Still loading...");
     return <BuildHomeSkeleton />;
   }
 
   if (!build) {
-    console.log("Build not found after loading");
     return (
       <div className="mt-[5rem] h-screen flex items-center justify-center">
         <div className="text-center p-8 bg-yellow-900/20 border border-yellow-500/30 rounded-lg">
@@ -179,7 +173,6 @@ const BuildInitalClient = ({}) => {
   }
 
   if (!user) {
-    console.log("User not found after loading");
     return (
       <div className="mt-[5rem] h-screen flex items-center justify-center">
         <div className="text-center p-8 bg-blue-900/20 border border-blue-500/30 rounded-lg">
@@ -200,7 +193,6 @@ const BuildInitalClient = ({}) => {
   }
 
   if (!userProject) {
-    console.log("UserProject not found, using fallback");
     return (
       <div className="mt-[5rem] h-screen flex">
         <section className="flex w-full">

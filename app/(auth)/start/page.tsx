@@ -20,10 +20,8 @@ const LoginContent = () => {
     // Pass the hardcoded redirect URI to the sign-in function
     const res = await signInWithEmail(email, "/auth-sucess");
     if (res) {
-      console.log("Login successful:", res);
       setSuccessfulLogin(true);
     } else {
-      console.log("Login failed");
       setSuccessfulLogin(false);
     }
     setLoading(false);

@@ -98,7 +98,6 @@ export default function ProfilePictureUpload({
       setPreview(null);
       setImageFile(null);
     } catch (error) {
-      console.log("Error updating profile picture:", error);
       toast.error("Error updating profile picture", {
         description:
           "There was an error updating your profile picture. Please try again.",

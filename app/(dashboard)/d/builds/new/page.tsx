@@ -16,6 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ProjectType } from "@prisma/client";
+import { toast } from "sonner";
 
 type ProjectForm = Omit<SingleProject, "stepsLength">;
 
@@ -121,9 +122,8 @@ export default function CreateSingleProject() {
 
     try {
       await createProject(projectData, form.steps);
-      console.log("Project created successfully");
     } catch (error) {
-      console.log("Error creating project:", error);
+      toast.error("Error creating project");
     }
   };
 

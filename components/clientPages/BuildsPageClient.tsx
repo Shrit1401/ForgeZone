@@ -22,8 +22,6 @@ const BuildsPageClient = () => {
     fetchData();
   }, []);
 
-  console.log("Builds Data:", builds);
-
   const getBuildDetails = (projectName: string): SingleProject | undefined => {
     return builds.find((build) => build.name === projectName);
   };
@@ -46,9 +44,6 @@ const BuildsPageClient = () => {
             {user.projects.map((userProject, index) => {
               const buildDetails = getBuildDetails(userProject.projectname);
               if (!buildDetails) return null;
-
-              console.log("User Project:", userProject);
-              console.log("Build Details:", buildDetails);
 
               return (
                 <BuildsCard

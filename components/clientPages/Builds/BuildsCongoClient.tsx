@@ -4,7 +4,6 @@ import { getLoggedInUser } from "@/lib/auth/auth";
 import { getBuildBySlug, getProjectFromUser } from "@/lib/build/build";
 import { SingleProject } from "@/types/project.types";
 import { UserType } from "@/types/user.types";
-import { useParams } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
 import { TrophyIcon, CheckCircleIcon } from "@heroicons/react/16/solid";
 import {
@@ -25,11 +24,10 @@ import html2canvas from "html2canvas-pro";
 import { toast } from "sonner";
 import Confetti from "react-confetti";
 
-const BuildsCongoClient = () => {
+const BuildsCongoClient = ({ buildSlug }: { buildSlug: string }) => {
   const [build, setBuild] = useState<SingleProject>();
   const [user, setUser] = useState<UserType | null | undefined>();
-  const params = useParams();
-  const buildParam = params.build as string;
+  const buildParam = buildSlug;
   const certificateRef = useRef<HTMLDivElement>(null);
 
   const [windowDimensions, setWindowDimensions] = useState({

@@ -16,7 +16,6 @@ import {
 } from "@/components/ui/breadcrumb";
 import RequirementDialog from "@/components/build/RequirementDialog";
 import { SingleProject, StepItem } from "@/types/project.types";
-import { useParams } from "next/navigation";
 import {
   getBuildBySlug,
   getBuildStepBySlug,
@@ -52,7 +51,13 @@ const BORDER_STYLE = "border-dashed border-white/20";
 const BUTTON_BASE_STYLE =
   "rounded-full text-black font-[700] px-6 py-2 hover:opacity-80 transition-all duration-200";
 
-const BuildsStepClient = () => {
+const BuildsStepClient = ({
+  buildSlug,
+  stepSlug,
+}: {
+  buildSlug: string;
+  stepSlug: string;
+}) => {
   // State declarations
   const [build, setBuild] = useState<SingleProject>();
   const [loading, setLoading] = useState(true);
@@ -63,9 +68,8 @@ const BuildsStepClient = () => {
   const [messages, setMessages] = useState<UserMessage>();
   const [currentStepIndex, setCurrentStepIndex] = useState<number>(-1);
 
-  const params = useParams();
-  const buildParam = params.build as string;
-  const courseParam = params.step as string;
+  const buildParam = buildSlug;
+  const courseParam = stepSlug;
 
   // Data fetching
   useEffect(() => {
@@ -101,9 +105,6 @@ const BuildsStepClient = () => {
     if (res) {
       setUserProject(res);
       setPercentage(Math.floor(((res.current - 1) / build.stepsLength) * 100));
-
-      // Log user project details
-      console.log(res);
     }
   }, [user, build]);
 
@@ -161,9 +162,6 @@ const BuildsStepClient = () => {
       return;
     }
 
-    // Log updated project after update
-    console.log("Project after update:", updatedProject);
-
     if (willComplete) {
       window.location.href = `/p/${build.projectSlug}/congo`;
     } else {
@@ -180,9 +178,6 @@ const BuildsStepClient = () => {
   if (!build || !user || !userProject || !step) {
     return <CourseSkeleton />;
   }
-
-  // Log the userProject after checks
-  console.log("UserProject after checks:", userProject);
 
   // Derived state
   const messageExists = messages !== undefined;

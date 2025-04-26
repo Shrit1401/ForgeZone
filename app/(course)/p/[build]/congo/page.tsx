@@ -13,25 +13,26 @@ type Props = {
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const buildSlug = params.build;
-  const build = await GetBuildBySlug(buildSlug);
+  const { build } = await params;
+  const buildSlug = String(build);
+  const buildData = await GetBuildBySlug(buildSlug);
 
-  if (!build) {
+  if (!buildData) {
     return {
       title: "Build Not Found",
       description: "The build you are looking for does not exist.",
     };
   }
   return {
-    title: `${build.name} Completed`,
-    description: `${build.oneLiner}`,
+    title: `${buildData.name}`,
+    description: `${buildData.oneLiner}`,
     openGraph: {
-      title: build.name,
-      description: build.oneLiner,
+      title: buildData.name,
+      description: buildData.oneLiner,
       images: [
         {
-          url: build.activeImg,
-          alt: `${build.name} - Build Project Faster`,
+          url: buildData.activeImg,
+          alt: `${buildData.name} - Build Project Faster`,
         },
       ],
       siteName: "Forge Zone",
@@ -63,5 +64,5 @@ export default async function BuildHome({ params }: Props) {
     );
   }
 
-  return <BuildsCongoClient />;
+  return <BuildsCongoClient buildSlug={buildSlug} />;
 }

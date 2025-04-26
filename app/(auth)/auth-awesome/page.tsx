@@ -16,7 +16,6 @@ function AuthAwesomeContent() {
       error,
     } = await supabaseClient.auth.getUser();
     if (error) {
-      console.log("Error fetching user:", error);
       setLoading(false); // Stop loading on error
       return;
     }
@@ -26,7 +25,6 @@ function AuthAwesomeContent() {
         if (res) {
           setLoading(false);
         } else {
-          console.log("Error creating user");
           setLoading(false);
         }
       } catch (createUserError) {
@@ -35,7 +33,6 @@ function AuthAwesomeContent() {
       }
     } else {
       // Handle case where there is no user but no error (e.g., not logged in)
-      console.log("No user found.");
       setLoading(false);
       // Optionally redirect to login or show a message
       // router.push('/login'); // Example redirect

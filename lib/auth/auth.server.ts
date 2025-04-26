@@ -8,7 +8,6 @@ import { SingleProject } from "@/types/project.types";
 export async function createUser(user: User) {
   try {
     if (!user.email) {
-      console.log("User is null");
       return null;
     }
 
@@ -20,7 +19,6 @@ export async function createUser(user: User) {
     });
 
     if (existingUser) {
-      console.log("User already exists, returning existing user");
       return existingUser as unknown as UserType;
     }
 
@@ -37,7 +35,6 @@ export async function createUser(user: User) {
     });
     return res as unknown as UserType;
   } catch (error) {
-    console.log("Error creating user:", error);
     return null;
   }
 }
@@ -101,7 +98,6 @@ export async function getUserById(id: string) {
 
     return user;
   } catch (error) {
-    console.log("Error fetching user:", error);
     return null;
   }
 }
@@ -119,7 +115,6 @@ export async function updatePfp(id: string, pfp: string) {
 
     return res as unknown as UserType;
   } catch (error) {
-    console.log("Error updating user:", error);
     return null;
   }
 }
@@ -160,7 +155,6 @@ export async function updateUser(user: UserType) {
 
     return res as unknown as UserType;
   } catch (error) {
-    console.log("Error updating user:", error);
     return null;
   }
 }

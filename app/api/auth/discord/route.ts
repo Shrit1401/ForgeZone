@@ -10,8 +10,5 @@ export async function GET() {
     redirectUri
   )}&response_type=code&scope=identify`;
 
-  // Log the constructed URL to verify
-  console.log("Discord Auth URL:", discordAuthUrl);
-
   return NextResponse.redirect(discordAuthUrl);
 }
