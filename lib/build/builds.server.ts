@@ -3,48 +3,69 @@ import db from "@/lib/db";
 import { ProjectType, SingleProject } from "@/types/project.types";
 import { UserMessage } from "@/types/user.types";
 
+const mapProjectType = (type: string): ProjectType => {
+  if (type in ProjectType) {
+    return ProjectType[type as keyof typeof ProjectType];
+  }
+  return ProjectType.none;
+};
+
 export const getAllBuilds = async () => {
   try {
     const allBuilds = await db.singleProject.findMany({
-      include: {
+      select: {
+        id: true,
+        name: true,
+        oneLiner: true,
+        discordRole: true,
+        twitterMessage: true,
+        isFeatured: true,
+        normalImg: true,
+        activeImg: true,
+        projectSlug: true,
+        stepsLength: true,
+        projectType: true,
         steps: {
-          include: {
-            stepItems: true,
+          select: {
+            id: true,
+            name: true,
+            projectId: true,
+            stepItems: {
+              select: {
+                id: true,
+                text: true,
+                slug: true,
+                sourceUrl: true,
+                requirementMessage: true,
+                stepId: true,
+              },
+            },
           },
         },
       },
     });
 
     const builds: SingleProject[] = allBuilds.map((build) => {
-      {
-        const projectType =
-          build.projectType === "none"
-            ? ProjectType.none
-            : build.projectType === "weekend"
-            ? ProjectType.weekend
-            : ProjectType.advance;
-
-        return {
-          id: build.id,
-          name: build.name,
-          oneLiner: build.oneLiner,
-          discordRole: build.discordRole,
-          twitterMessage: build.twitterMessage,
-          isFeatured: build.isFeatured,
-          normalImg: build.normalImg,
-          projectType: projectType,
-          activeImg: build.activeImg,
-          projectSlug: build.projectSlug,
-          stepsLength: build.stepsLength,
-          steps: build.steps.map((step) => ({
-            ...step,
-            stepItems: step.stepItems.map((item) => ({
-              ...item,
-              source: item.sourceUrl,
-            })),
+      return {
+        id: build.id,
+        name: build.name,
+        oneLiner: build.oneLiner,
+        discordRole: build.discordRole,
+        twitterMessage: build.twitterMessage,
+        isFeatured: build.isFeatured,
+        normalImg: build.normalImg,
+        projectType: mapProjectType(build.projectType), // 👈 clean mapping
+        activeImg: build.activeImg,
+        projectSlug: build.projectSlug,
+        stepsLength: build.stepsLength,
+        steps: build.steps.map((step) => ({
+          ...step,
+          stepItems: step.stepItems.map((item) => ({
+            ...item,
+            source: item.sourceUrl,
           })),
-        };
-      }
+        })),
+      };
     });
 
     return builds;
@@ -71,6 +92,14 @@ export const GetBuildBySlug = async (slug: string) => {
 
     if (!build) return null;
 
+    // Convert the projectType enum from database to TypeScript enum
+    let projectType = ProjectType.none;
+    if (build.projectType === "weekend") {
+      projectType = ProjectType.weekend;
+    } else if (build.projectType === "advance") {
+      projectType = ProjectType.advance;
+    }
+
     const formattedBuild = {
       id: build.id,
       name: build.name,
@@ -79,7 +108,7 @@ export const GetBuildBySlug = async (slug: string) => {
       twitterMessage: build.twitterMessage,
       isFeatured: build.isFeatured,
       normalImg: build.normalImg,
-      projectType: build.projectType,
+      projectType: projectType,
       activeImg: build.activeImg,
       projectSlug: build.projectSlug,
       stepsLength: build.stepsLength,

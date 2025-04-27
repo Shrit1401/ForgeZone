@@ -1,9 +1,17 @@
 "use server";
 import db from "../db";
-import { SingleProject, Step } from "@/types/project.types";
+import { SingleProject, Step, ProjectType } from "@/types/project.types";
 
 export const createProject = async (project: SingleProject, steps: Step[]) => {
   try {
+    // Convert the enum value to a string for the database
+    let projectTypeString: "none" | "weekend" | "advance" = "none";
+    if (project.projectType === ProjectType.weekend) {
+      projectTypeString = "weekend";
+    } else if (project.projectType === ProjectType.advance) {
+      projectTypeString = "advance";
+    }
+
     const res = db.singleProject.create({
       data: {
         name: project.name,
@@ -14,7 +22,7 @@ export const createProject = async (project: SingleProject, steps: Step[]) => {
         normalImg: project.normalImg,
         activeImg: project.activeImg,
         projectSlug: project.projectSlug,
-        projectType: project.projectType,
+        projectType: projectTypeString,
         stepsLength: project.stepsLength,
 
         steps: {
@@ -104,6 +112,14 @@ export const updateProject = async (
       throw new Error("Project not found");
     }
 
+    // Convert the enum value to a string for the database
+    let projectTypeString: "none" | "weekend" | "advance" = "none";
+    if (project.projectType === ProjectType.weekend) {
+      projectTypeString = "weekend";
+    } else if (project.projectType === ProjectType.advance) {
+      projectTypeString = "advance";
+    }
+
     // Update basic project info
     const updatedProject = await db.singleProject.update({
       where: { projectSlug: projectSlug },
@@ -116,7 +132,7 @@ export const updateProject = async (
         normalImg: project.normalImg,
         activeImg: project.activeImg,
         projectSlug: project.projectSlug,
-        projectType: project.projectType,
+        projectType: projectTypeString,
         stepsLength: project.stepsLength,
       },
     });

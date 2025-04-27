@@ -42,7 +42,7 @@ export default function EditProject() {
     normalImg: "",
     activeImg: "",
     projectSlug: "",
-    projectType: "none",
+    projectType: ProjectType.none,
     steps: [],
   });
 
@@ -61,6 +61,7 @@ export default function EditProject() {
             normalImg: build.normalImg,
             activeImg: build.activeImg,
             projectSlug: build.projectSlug,
+            // Use the projectType value that is now properly converted in builds.server.ts
             projectType: build.projectType,
             steps: build.steps,
           });
@@ -244,11 +245,11 @@ export default function EditProject() {
             <div className="space-y-2">
               <Label htmlFor="projectType">Project Type</Label>
               <Select
-                value={form.projectType}
+                value={ProjectType[form.projectType].toString()}
                 onValueChange={(value) =>
                   setForm((prev) => ({
                     ...prev,
-                    projectType: value as ProjectType,
+                    projectType: ProjectType[value as keyof typeof ProjectType],
                   }))
                 }
               >
