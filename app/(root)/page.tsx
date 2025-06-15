@@ -27,7 +27,7 @@ const Home = () => {
         </h1>
         <p className="text-xl manrope font-normal text-white/90 text-center z-10 relative mt-4 w-[80%] sm:w-[50%]">
           From AI to web3, ML to APIs—we design projects that get you working
-          with what’s hot and in-demand right now.
+          with what's hot and in-demand right now.
         </p>
         <Btn
           title="Explore"
@@ -56,19 +56,19 @@ const Home = () => {
         />
       </section>
 
-      {/* Section: Advanced Builds */}
+      {/* Section: Building Republic */}
       <section className="h-screen w-full bg-fixed bg-[url('https://i.imgur.com/dPDjmlV.png')] flex flex-col items-center justify-center bg-cover bg-center bg-no-repeat relative">
         <h1 className="text-5xl sm:text-7xl manrope font-[800] text-white text-center z-10 relative">
-          Take it to <br /> the next level.
+          Join the <br /> Building in Public.
         </h1>
         <p className="text-xl manrope font-normal text-white/90 text-center z-10 relative mt-4 w-[80%] sm:w-[50%]">
-          Ready to go deeper? Join our private group of skilled builders working
-          on ambitious, advanced projects.
+          Everything we do is in public. We build in public, we learn in public,
+          and we grow in public.
         </p>
         <Btn
-          title="Request to Join"
+          title="See what we're building"
           className="mt-8"
-          link="https://tally.so/r/w2VNgV"
+          link="https://github.com/forge-zone"
           type="outline"
           size="large"
           target="_blank"

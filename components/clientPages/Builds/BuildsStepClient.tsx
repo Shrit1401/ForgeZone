@@ -258,7 +258,7 @@ const BuildsStepClient = ({
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
                 <BreadcrumbItem>
-                  <BreadcrumbLink href={`/builds/${buildParam}`}>
+                  <BreadcrumbLink href={`/p/${buildParam}`}>
                     {build.name}
                   </BreadcrumbLink>
                 </BreadcrumbItem>

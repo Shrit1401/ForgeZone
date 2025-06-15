@@ -18,7 +18,7 @@ const LoginContent = () => {
   const handleLogin = async (email: string) => {
     setLoading(true);
     // Pass the hardcoded redirect URI to the sign-in function
-    const res = await signInWithEmail(email, "/auth-sucess");
+    const res = await signInWithEmail(email, "/auth-awesome");
     if (res) {
       setSuccessfulLogin(true);
     } else {

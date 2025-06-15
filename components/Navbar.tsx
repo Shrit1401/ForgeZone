@@ -47,7 +47,7 @@ const Navbar = () => {
   const links = [
     { name: "builds", link: "/builds" },
     // { name: "work", link: "/work" },
-    { name: "notes", link: "/notes" },
+    // { name: "notes", link: "/notes" },
     {
       name: "discord",
       link: "https://discord.gg/e3RfmAVAXV",
