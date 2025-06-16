@@ -86,6 +86,7 @@ model SingleProject {
   normalImg      String
   activeImg      String
   // timeToGoLive   DateTime? future implementation
+  demoUrl        String?
   projectSlug    String      @unique
   stepsLength    Int
   projectType    ProjectType @default(none)

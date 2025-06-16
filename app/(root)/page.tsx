@@ -57,7 +57,7 @@ const Home = () => {
       </section>
 
       {/* Section: Building Republic */}
-      <section className="h-screen w-full bg-fixed bg-[url('https://i.imgur.com/dPDjmlV.png')] flex flex-col items-center justify-center bg-cover bg-center bg-no-repeat relative">
+      <section className="h-screen w-full bg-fixed bg-[url('https://i.postimg.cc/BZhNBGkN/image.png')] flex flex-col items-center justify-center bg-cover bg-center bg-no-repeat relative">
         <h1 className="text-5xl sm:text-7xl manrope font-[800] text-white text-center z-10 relative">
           Join the <br /> Building in Public.
         </h1>

@@ -6,15 +6,10 @@ import { updateUserProject } from "../build/builds.server";
 
 const url = process.env.NEXT_PUBLIC_NEXT_URL || "http://localhost:3000";
 
-export async function signInWithEmail(email: string, redirectTo?: string) {
-  const { data, error } = await supabaseClient.auth.signInWithOtp({
+export async function signInWithEmail(email: string, password: string) {
+  const { data, error } = await supabaseClient.auth.signInWithPassword({
     email: email,
-    options: {
-      shouldCreateUser: true,
-      emailRedirectTo: redirectTo
-        ? `${url}/auth-awesome?redirectTo=${encodeURIComponent(redirectTo)}`
-        : `${url}/auth-awesome`,
-    },
+    password: password,
   });
 
   if (error) {
@@ -24,6 +19,43 @@ export async function signInWithEmail(email: string, redirectTo?: string) {
 
   return data;
 }
+
+export async function signUpWithEmail(email: string, password: string) {
+  const { data, error } = await supabaseClient.auth.signUp({
+    email: email,
+    password: password,
+  });
+
+  if (data.user) {
+    await createUser(data.user);
+  }
+  if (error) {
+    console.log("Error signing in:", error);
+    return null;
+  }
+
+  return data;
+}
+
+export async function signUpWithGoogle() {
+  const { data, error } = await supabaseClient.auth.signInWithOAuth({
+    provider: "google",
+  });
+
+  const { data: userData, error: userError } =
+    await supabaseClient.auth.getUser();
+  if (userData.user) {
+    await createUser(userData.user);
+  }
+
+  if (error || userError) {
+    console.log("Error signing in with Google:", error || userError);
+    return null;
+  }
+
+  return data;
+}
+
 export const getLoggedInUser = async (
   setUser: React.Dispatch<React.SetStateAction<UserType | null | undefined>>,
   setLoading?: React.Dispatch<React.SetStateAction<boolean>>

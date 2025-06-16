@@ -1,6 +1,11 @@
 import React from "react";
 import Link from "next/link";
-import { LockClosedIcon, CheckCircleIcon } from "@heroicons/react/16/solid";
+import {
+  LockClosedIcon,
+  CheckCircleIcon,
+  ChevronUpIcon,
+  ChevronDownIcon,
+} from "@heroicons/react/16/solid";
 import { Step } from "@/types/project.types";
 
 type SidebarProps = {
@@ -55,34 +60,55 @@ const Sidebar = ({ steps, image, current, slug }: SidebarProps) => {
   );
 
   return (
-    <div className="w-1/5 h-screen px-3 py-6 overflow-hidden fixed left-0 top-[4rem] bg-[#080707]">
-      <img
-        src={image}
-        alt="Course thumbnail"
-        className="rounded-sm w-full object-cover"
-      />
+    <div className="w-1/5 h-[calc(100vh-4rem)] px-3 py-6 fixed left-0 top-[4rem] bg-[#080707]">
+      <div className="h-full overflow-y-auto scrollbar-hide hover:scrollbar-default">
+        <style jsx global>{`
+          .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+          }
+          .scrollbar-default::-webkit-scrollbar {
+            display: block;
+            width: 6px;
+          }
+          .scrollbar-default::-webkit-scrollbar-track {
+            background: transparent;
+          }
+          .scrollbar-default::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+          }
+          .scrollbar-default::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+          }
+        `}</style>
+        <img
+          src={image}
+          alt="Course thumbnail"
+          className="rounded-sm w-full object-cover"
+        />
 
-      <div className="flex flex-col gap-6 mt-6">
-        {steps.map((step, stepIndex) => (
-          <div key={stepIndex} className="flex flex-col gap-2">
-            <h3 className="manrope uppercase">{step.name}</h3>
+        <div className="flex flex-col gap-6 mt-6 pb-24">
+          {steps.map((step, stepIndex) => (
+            <div key={stepIndex} className="flex flex-col gap-2">
+              <h3 className="manrope uppercase">{step.name}</h3>
 
-            <ul className="flex flex-col gap-2">
-              {step.stepItems.map((item, itemIndex) => {
-                const locked = isLocked(stepIndex, itemIndex);
-                return (
-                  <li key={itemIndex}>
-                    <StepItem
-                      text={item.text}
-                      url={`/p/${slug}/${item.slug}`}
-                      locked={locked}
-                    />
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        ))}
+              <ul className="flex flex-col gap-2">
+                {step.stepItems.map((item, itemIndex) => {
+                  const locked = isLocked(stepIndex, itemIndex);
+                  return (
+                    <li key={itemIndex}>
+                      <StepItem
+                        text={item.text}
+                        url={`/p/${slug}/${item.slug}`}
+                        locked={locked}
+                      />
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

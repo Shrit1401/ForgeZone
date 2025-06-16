@@ -149,6 +149,30 @@ export default function EditProject() {
     setForm((prev) => ({ ...prev, steps }));
   };
 
+  const moveStepItemUp = (stepIndex: number, itemIndex: number) => {
+    if (itemIndex === 0) return; // Can't move up if already at top
+    const steps = [...form.steps];
+    const stepItems = [...steps[stepIndex].stepItems];
+    [stepItems[itemIndex], stepItems[itemIndex - 1]] = [
+      stepItems[itemIndex - 1],
+      stepItems[itemIndex],
+    ];
+    steps[stepIndex].stepItems = stepItems;
+    setForm((prev) => ({ ...prev, steps }));
+  };
+
+  const moveStepItemDown = (stepIndex: number, itemIndex: number) => {
+    const steps = [...form.steps];
+    const stepItems = [...steps[stepIndex].stepItems];
+    if (itemIndex === stepItems.length - 1) return; // Can't move down if already at bottom
+    [stepItems[itemIndex], stepItems[itemIndex + 1]] = [
+      stepItems[itemIndex + 1],
+      stepItems[itemIndex],
+    ];
+    steps[stepIndex].stepItems = stepItems;
+    setForm((prev) => ({ ...prev, steps }));
+  };
+
   const updateStepItem = (
     stepIndex: number,
     itemIndex: number,
@@ -369,6 +393,35 @@ export default function EditProject() {
                   key={itemIndex}
                   className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-[#222] rounded-lg"
                 >
+                  <div className="md:col-span-2 flex justify-end gap-2 mb-2">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => moveStepItemUp(stepIndex, itemIndex)}
+                      disabled={itemIndex === 0}
+                    >
+                      ↑
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => moveStepItemDown(stepIndex, itemIndex)}
+                      disabled={itemIndex === step.stepItems.length - 1}
+                    >
+                      ↓
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="text-red-500"
+                      onClick={() => removeStepItem(stepIndex, itemIndex)}
+                    >
+                      Remove
+                    </Button>
+                  </div>
                   {(Object.keys(item) as (keyof StepItem)[]).map((key) => (
                     <div key={key} className="space-y-2">
                       <Label
@@ -408,14 +461,6 @@ export default function EditProject() {
                       )}
                     </div>
                   ))}
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    className="text-red-500 md:col-span-2 justify-start"
-                    onClick={() => removeStepItem(stepIndex, itemIndex)}
-                  >
-                    Remove Step Item
-                  </Button>
                 </div>
               ))}
 

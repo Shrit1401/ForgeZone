@@ -90,7 +90,11 @@ const CourseMarkdown: React.FC<MarkdownProps> = ({ source, name }) => {
       );
     }
 
-    return <a href={href}>{children}</a>;
+    return (
+      <a href={href} target="_blank" rel="noopener noreferrer">
+        {children}
+      </a>
+    );
   };
 
   return (

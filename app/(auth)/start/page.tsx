@@ -2,29 +2,48 @@
 import { Suspense } from "react";
 import Btn from "@/components/Btn";
 import { Input } from "@/components/ui/input";
-import { signInWithEmail } from "@/lib/auth/auth";
+import {
+  signInWithEmail,
+  signUpWithEmail,
+  signUpWithGoogle,
+} from "@/lib/auth/auth";
 import React from "react";
-import { useSearchParams } from "next/navigation";
+import { FaGoogle } from "react-icons/fa";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
-// New component to handle search params and login logic
 const LoginContent = () => {
   const [email, setEmail] = React.useState<string>("");
-  const [loading, setLoading] = React.useState<boolean>(false);
-  const [successfulLogin, setSuccessfulLogin] = React.useState<boolean>(false);
-
-  // Get the redirectTo parameter from the URL
-  const searchParams = useSearchParams();
+  const [loginLoading, setLoginLoading] = React.useState<boolean>(false);
+  const [registerLoading, setRegisterLoading] = React.useState<boolean>(false);
+  const [password, setPassword] = React.useState<string>("");
 
   const handleLogin = async (email: string) => {
-    setLoading(true);
-    // Pass the hardcoded redirect URI to the sign-in function
-    const res = await signInWithEmail(email, "/auth-awesome");
+    setLoginLoading(true);
+    const res = await signInWithEmail(email, password);
     if (res) {
-      setSuccessfulLogin(true);
+      window.location.href = "/";
     } else {
-      setSuccessfulLogin(false);
+      toast.error("Invalid email or password");
     }
-    setLoading(false);
+    setLoginLoading(false);
+  };
+
+  const handleRegister = async () => {
+    setRegisterLoading(true);
+    const res = await signUpWithEmail(email, password);
+    if (res) {
+      window.location.href = "/auth-awesome";
+    } else {
+      toast.error("Invalid email or password");
+    }
+    setRegisterLoading(false);
+  };
+
+  const signInWithGoogle = async () => {
+    setLoginLoading(true);
+    await signUpWithGoogle();
+    setLoginLoading(false);
   };
 
   return (
@@ -39,20 +58,36 @@ const LoginContent = () => {
         placeholder="Your Email"
         className="mb-4"
       />
+      <Input
+        type="password"
+        onChange={(e) => setPassword(e.target.value)}
+        placeholder="Your Password"
+        className="mb-4"
+      />
+
+      <div className="flex gap-4">
+        <Btn
+          title={loginLoading ? "Logging in..." : "Login"}
+          className="w-full mt-4 py-2"
+          type="outline"
+          onClick={() => handleLogin(email)}
+        />
+        <Btn
+          title={registerLoading ? "Registering..." : "Register"}
+          className="w-full mt-4 py-2"
+          onClick={() => handleRegister()}
+        />
+      </div>
+
+      <div className="w-full h-[1px] bg-white my-8 opacity-20" />
 
       <Btn
-        title={loading ? "Loading..." : "Let's Go"}
+        sideIcon={<FaGoogle />}
+        title="Sign in with Google"
         className="w-full mt-4 py-2"
         type="outline"
-        onClick={() => handleLogin(email)}
+        onClick={() => signInWithGoogle()}
       />
-      {successfulLogin && (
-        <p className="text-gray-500 mt-4">
-          {successfulLogin
-            ? "Check your email for the magic link!"
-            : "Please enter your email to receive a magic link."}
-        </p>
-      )}
     </div>
   );
 };

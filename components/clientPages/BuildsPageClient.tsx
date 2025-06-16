@@ -1,16 +1,18 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import BuildsCard from "@/components/builds/BuildsCard";
-import { getLoggedInUser } from "@/lib/auth/auth";
+import React, { useEffect } from "react";
+import { getLoggedInUser, getUserCompletetion } from "@/lib/auth/auth";
 import { getBuilds } from "@/lib/build/build";
 import { SingleProject } from "@/types/project.types";
 import { UserType } from "@/types/user.types";
 import { BuildsPageSkeleton } from "@/components/skeletons/buildHomeSkeleton";
+import BuildsCard from "../Builds/BuildsCard";
+import { AlertCircle } from "lucide-react";
 
 const BuildsPageClient = () => {
   const [user, setUser] = React.useState<UserType | undefined | null>();
   const [builds, setBuilds] = React.useState<SingleProject[]>([]);
   const [loading, setLoading] = React.useState(true);
+  const [profileCompletion, setProfileCompletion] = React.useState(0);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -21,6 +23,12 @@ const BuildsPageClient = () => {
 
     fetchData();
   }, []);
+
+  useEffect(() => {
+    if (user) {
+      getUserCompletetion(user, setProfileCompletion);
+    }
+  }, [user]);
 
   const getBuildDetails = (projectName: string): SingleProject | undefined => {
     return builds.find((build) => build.name === projectName);
@@ -37,6 +45,20 @@ const BuildsPageClient = () => {
 
   return (
     <div className="mt-[6rem] mx-auto max-w-7xl px-4 mb-10 ">
+      {profileCompletion < 75 && (
+        <div className="mb-8 bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-4 flex items-center gap-3">
+          <AlertCircle className="h-5 w-5 text-yellow-500" />
+          <div>
+            <h3 className="font-semibold text-yellow-500">
+              Complete your profile
+            </h3>
+            <p className="text-sm text-yellow-500/80">
+              Your profile is only {profileCompletion}% complete. Complete your
+              profile to get the most out of ForgeZone!
+            </p>
+          </div>
+        </div>
+      )}
       {user?.projects && user.projects.length > 0 && (
         <section className="mb-12">
           <h2 className="text-3xl font-bold manrope">My Builds</h2>
