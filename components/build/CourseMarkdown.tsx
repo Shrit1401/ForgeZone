@@ -63,6 +63,7 @@ const CourseMarkdown: React.FC<MarkdownProps> = ({ source, name }) => {
             style={vscDarkPlus}
             language={match[1]}
             PreTag="div"
+            className="rounded-md"
             {...props}
           >
             {String(children).replace(/\n$/, "")}
@@ -100,7 +101,7 @@ const CourseMarkdown: React.FC<MarkdownProps> = ({ source, name }) => {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen text-white p-4">
       <h1 className="text-6xl manrope font-semibold mb-8">{name}</h1>
-      <div className="prose prose-invert prose-p:text-lg prose-h3:text-2xl prose-p:leading-loose max-w-2xl">
+      <div className="prose prose-invert prose-p:text-lg prose-h3:text-2xl prose-p:leading-loose prose-img:rounded-lg max-w-2xl">
         <ReactMarkdown
           remarkPlugins={[remarkGfm]}
           rehypePlugins={[rehypeRaw]}
