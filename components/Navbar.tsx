@@ -18,6 +18,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import posthog from "posthog-js";
 
 const Navbar = () => {
   const [user, setUser] = React.useState<UserType | null | undefined>(null);
@@ -79,7 +80,7 @@ const Navbar = () => {
       <div className="flex items-center gap-2">
         {/* User profile for mobile */}
         {!loading && user && (
-          <ProfileDropdown handleSignOut={handleSignOut}>
+          <ProfileDropdown handleSignOut={handleSignOut} user={user}>
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -194,7 +195,7 @@ const Navbar = () => {
           </motion.div>
         ) : (
           <div className="inline-block">
-            <ProfileDropdown handleSignOut={handleSignOut}>
+            <ProfileDropdown handleSignOut={handleSignOut} user={user}>
               <motion.a
                 href="/profile"
                 initial={{ opacity: 0, scale: 0.8 }}
@@ -223,10 +224,13 @@ const Navbar = () => {
 const ProfileDropdown = ({
   children,
   handleSignOut,
+  user,
 }: Readonly<{
   children: React.ReactNode;
   handleSignOut: () => void;
+  user: UserType;
 }>) => {
+  posthog.identify(user.email);
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="focus:outline-none">

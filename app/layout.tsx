@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { HomeMetadata } from "@/lib/metadatas";
+import { PostHogProvider } from "@/components/PostHogProvider";
 
 export const metadata: Metadata = HomeMetadata;
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -21,8 +23,10 @@ export default function RootLayout({
         suppressHydrationWarning
         className="antialiased min-h-screen flex flex-col"
       >
-        {children}
-        <Toaster />
+        <PostHogProvider>
+          {children}
+          <Toaster />
+        </PostHogProvider>
       </body>
     </html>
   );
