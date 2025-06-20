@@ -87,6 +87,7 @@ const Footer: React.FC = () => {
             <h4 className="text-lg font-semibold">About</h4>
             <ul className="text-white/60 space-y-2">
               {[
+                { href: "./vision", label: "Vision" },
                 // { href: "./notes", label: "Notes" },
                 {
                   href: "https://discord.gg/e3RfmAVAXV",
