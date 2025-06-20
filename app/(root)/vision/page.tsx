@@ -3,16 +3,16 @@ import { Metadata } from "next";
 import React from "react";
 
 export const metadata: Metadata = {
-  title: "Vision - Forge Zone",
+  title: "Vision",
   description:
     "A home for the ones who build—apps, beats, dreams. Not just tech, but anything true.",
   openGraph: {
-    title: "Vision - Forge Zone",
+    title: "Vision",
     description:
       "A home for the ones who build—apps, beats, dreams. Not just tech, but anything true.",
     images: [
       {
-        url: "/vision/cover.png",
+        url: "https://i.postimg.cc/gkzCKP4k/image.png",
         alt: "Forge Zone Vision - Build Project Faster",
       },
     ],
