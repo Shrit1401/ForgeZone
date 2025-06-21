@@ -29,7 +29,6 @@ const BuildInitalClient = ({ buildSlug }: { buildSlug: string }) => {
   const [userProject, setUserProject] = useState<ProjectUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [percentage, setPercentage] = useState(0);
-  const [error, setError] = useState<string | null>(null);
 
   const [isDiscordConnected, setIsDiscordConnected] = useState(false);
   const [isTwitterConnected, setIsTwitterConnected] = useState(false);
@@ -44,7 +43,6 @@ const BuildInitalClient = ({ buildSlug }: { buildSlug: string }) => {
         await getLoggedInUser(setUser, setLoading);
       } catch (err) {
         console.error("Error fetching user:", err);
-        setError("Failed to load user data. Please try refreshing the page.");
         setLoading(false);
       }
     };
@@ -56,19 +54,13 @@ const BuildInitalClient = ({ buildSlug }: { buildSlug: string }) => {
     const fetchBuild = async () => {
       try {
         if (!buildParam) {
-          setError("Build parameter is missing");
           setLoading(false);
           return;
         }
 
-        const buildData = await getBuildBySlug(buildParam, setBuild);
-
-        if (!buildData) {
-          setError(`Build "${buildParam}" not found`);
-        }
+        await getBuildBySlug(buildParam, setBuild);
       } catch (error) {
         console.error("Error fetching build:", error);
-        setError("Failed to load build data. Please try refreshing the page.");
       } finally {
         setLoading(false);
       }
@@ -132,92 +124,8 @@ const BuildInitalClient = ({ buildSlug }: { buildSlug: string }) => {
     setTwitterUrl(`https://twitter.com/intent/tweet?text=${twitterText}`);
   };
 
-  if (loading) {
+  if (loading || !build || !user) {
     return <BuildHomeSkeleton />;
-  }
-
-  if (!build) {
-    return (
-      <div className="mt-[5rem] h-screen flex items-center justify-center">
-        <div className="text-center p-8 bg-yellow-900/20 border border-yellow-500/30 rounded-lg">
-          <h2 className="text-xl font-bold text-white mb-2">Build Not Found</h2>
-          <p className="text-white/70 mb-4">
-            We couldn't find the build you're looking for.
-          </p>
-          <Btn
-            title="Go Back to Builds"
-            className="w-fit mx-auto"
-            onClick={() => (window.location.href = "/builds")}
-          />
-        </div>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return (
-      <div className="mt-[5rem] h-screen flex items-center justify-center">
-        <div className="text-center p-8 bg-blue-900/20 border border-blue-500/30 rounded-lg">
-          <h2 className="text-xl font-bold text-white mb-2">
-            Authentication Required
-          </h2>
-          <p className="text-white/70 mb-4">
-            Please login to access this build.
-          </p>
-          <Btn
-            title="Go to Login"
-            className="w-fit mx-auto"
-            onClick={() => (window.location.href = "/auth/start")}
-          />
-        </div>
-      </div>
-    );
-  }
-
-  if (!userProject) {
-    return (
-      <div className="mt-[5rem] h-screen flex">
-        <section className="flex w-full">
-          <Sidebar
-            slug={build.projectSlug}
-            current={0}
-            steps={build.steps}
-            image={build.activeImg}
-          />
-
-          <div className="left-[20%] h-screen border-l fixed border-dashed border-white/20" />
-          <div className="w-full mt-[4rem] fixed top-0 border-t border-dashed z-[999] border-white/20" />
-          <div className="ml-[20%] w-4/5 h-screen overflow-y-auto px-4 py-2 relative">
-            <Breadcrumb>
-              <BreadcrumbList>
-                <BreadcrumbItem>
-                  <BreadcrumbLink href="/">Home</BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator />
-                <BreadcrumbItem>
-                  <BreadcrumbLink href="/builds">Builds</BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator />
-                <BreadcrumbItem>
-                  <BreadcrumbPage>{build?.name || "Build Name"}</BreadcrumbPage>
-                </BreadcrumbItem>
-              </BreadcrumbList>
-            </Breadcrumb>
-
-            <div className="flex flex-col items-center justify-center gap-1 mt-6">
-              <h2 className="manrope text-white font-[700] text-3xl mt-6">
-                Get Ready to Ship
-              </h2>
-              <p className="font-bold text-white/50 mt-2 w-[70%] text-center">
-                Join hundreds of builders in ML/AI to ship this build together.
-                Make sure to complete the tasks below to get the most out of
-                this build.
-              </p>
-            </div>
-          </div>
-        </section>
-      </div>
-    );
   }
 
   return (
@@ -225,7 +133,7 @@ const BuildInitalClient = ({ buildSlug }: { buildSlug: string }) => {
       <section className="flex w-full">
         <Sidebar
           slug={build.projectSlug}
-          current={userProject.current}
+          current={userProject?.current || 0}
           steps={build.steps}
           image={build.activeImg}
         />
