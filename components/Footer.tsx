@@ -122,6 +122,21 @@ const Footer: React.FC = () => {
           ))}
         </div>
       </div>
+
+      {/* Contact Bar */}
+      <div className="mt-8 pt-6 border-t border-white/10">
+        <div className="text-center">
+          <p className="text-lg manrope font-normal text-white/90">
+            Questions? Ideas? Just want to chat?{" "}
+            <a
+              href="mailto:shrit@forgezone.dev"
+              className="text-white hover:text-gray-300 transition-colors duration-300 font-semibold"
+            >
+              Email us at shrit@forgezone.dev
+            </a>
+          </p>
+        </div>
+      </div>
     </footer>
   );
 };

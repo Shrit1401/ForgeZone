@@ -299,7 +299,8 @@ const PrivacyPolicyPage = () => {
                 </Link>
               </p>
               <p>
-                <span className="font-medium">Email:</span> shrit1401@gmail.com
+                <span className="font-medium">Email:</span>{" "}
+                <a href="mailto:shrit@forgezone.dev">shrit@forgezone.dev</a>
               </p>
             </div>
           </CardContent>
@@ -312,7 +313,7 @@ const PrivacyPolicyPage = () => {
               Return to Homepage
             </Link>
             {" | "}
-            <Link href="/terms" className="text-blue-400 hover:underline">
+            <Link href="/tos" className="text-blue-400 hover:underline">
               Terms of Service
             </Link>
           </div>

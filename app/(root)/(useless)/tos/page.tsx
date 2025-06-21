@@ -228,7 +228,8 @@ const TermsOfServicePage = () => {
                 </Link>
               </p>
               <p>
-                <span className="font-medium">Email:</span> shrit1401@gmail.com
+                <span className="font-medium">Email:</span>{" "}
+                <a href="mailto:shrit@forgezone.dev">shrit@forgezone.dev</a>
               </p>
             </div>
           </CardContent>
