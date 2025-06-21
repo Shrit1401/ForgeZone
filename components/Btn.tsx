@@ -1,4 +1,3 @@
-import Link from "next/link";
 import React from "react";
 
 type BtnProps = {
@@ -28,19 +27,19 @@ const Btn: React.FC<BtnProps> = ({
     type === "outline"
       ? "bg-transparent border-2 border-white text-white hover:bg-white hover:text-black"
       : type === "ghost"
-      ? "bg-white/10 text-white hover:bg-white/20"
-      : "bg-white text-black hover:bg-gray-100 hover:opacity-80"
+        ? "bg-white/10 text-white hover:bg-white/20"
+        : "bg-white text-black hover:bg-gray-100 hover:opacity-80"
   } transition-all duration-300 manrope rounded-full ${
     size === "small"
       ? "px-4 py-2 text-sm"
       : size === "large"
-      ? "px-6 py-3 text-lg"
-      : "px-4 py-2 text-base"
+        ? "px-6 py-3 text-lg"
+        : "px-4 py-2 text-base"
   } ${className} flex items-center justify-center text-center relative z-10 cursor-pointer`;
 
   if (link) {
     return (
-      <Link
+      <a
         href={link}
         className={styles}
         target={target}
@@ -48,7 +47,7 @@ const Btn: React.FC<BtnProps> = ({
       >
         {sideIcon && <span className="mr-2">{sideIcon}</span>}
         {title}
-      </Link>
+      </a>
     );
   }
 
