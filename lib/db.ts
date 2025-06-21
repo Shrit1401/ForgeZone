@@ -1,7 +1,17 @@
 import { PrismaClient } from "@prisma/client";
 
 const prismaClientSingleton = () => {
-  return new PrismaClient();
+  return new PrismaClient({
+    log:
+      process.env.NODE_ENV === "production"
+        ? ["error"]
+        : ["query", "error", "warn"],
+    datasources: {
+      db: {
+        url: process.env.DATABASE_URL,
+      },
+    },
+  });
 };
 
 declare global {
@@ -9,6 +19,20 @@ declare global {
 }
 
 const db = globalThis.prisma ?? prismaClientSingleton();
-export default db;
 
-if (process.env.NODE_ENV !== "production") globalThis.prisma = db;
+// Handle graceful shutdown in production
+process.on("beforeExit", async () => {
+  await db.$disconnect();
+});
+
+process.on("SIGINT", async () => {
+  await db.$disconnect();
+  process.exit(0);
+});
+
+process.on("SIGTERM", async () => {
+  await db.$disconnect();
+  process.exit(0);
+});
+
+export default db;
