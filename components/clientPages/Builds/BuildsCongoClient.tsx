@@ -4,7 +4,13 @@ import { getLoggedInUser } from "@/lib/auth/auth";
 import { getBuildBySlug, getProjectFromUser } from "@/lib/build/build";
 import { SingleProject } from "@/types/project.types";
 import { UserType } from "@/types/user.types";
-import React, { useEffect, useRef, useState } from "react";
+import React, {
+  useEffect,
+  useRef,
+  useState,
+  useCallback,
+  useMemo,
+} from "react";
 import { TrophyIcon, CheckCircleIcon } from "@heroicons/react/16/solid";
 import {
   Card,
@@ -24,7 +30,7 @@ import html2canvas from "html2canvas-pro";
 import { toast } from "sonner";
 import Confetti from "react-confetti";
 
-const BuildsCongoClient = ({ buildSlug }: { buildSlug: string }) => {
+const BuildsCongoClient = React.memo(({ buildSlug }: { buildSlug: string }) => {
   const [build, setBuild] = useState<SingleProject>();
   const [user, setUser] = useState<UserType | null | undefined>();
   const buildParam = buildSlug;
@@ -35,6 +41,16 @@ const BuildsCongoClient = ({ buildSlug }: { buildSlug: string }) => {
     height: typeof window !== "undefined" ? window.innerHeight : 0,
   });
   const [confettiActive, setConfettiActive] = useState(true);
+
+  const currentDate = useMemo(
+    () =>
+      new Date().toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      }),
+    []
+  );
 
   // Handle window resize for confetti
   useEffect(() => {
@@ -60,12 +76,6 @@ const BuildsCongoClient = ({ buildSlug }: { buildSlug: string }) => {
     };
   }, []);
 
-  const currentDate = new Date().toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-
   useEffect(() => {
     const initializeData = async () => {
       await getLoggedInUser(setUser);
@@ -90,37 +100,43 @@ const BuildsCongoClient = ({ buildSlug }: { buildSlug: string }) => {
     }
   }, [user, build, buildParam]);
 
-  const generateCertificateImage = async () => {
+  const preloadImages = useCallback(async () => {
+    if (!certificateRef.current) return;
+
+    const images = Array.from(certificateRef.current.querySelectorAll("img"));
+
+    // Add error handler to replace broken images with placeholders
+    images.forEach((img) => {
+      if (!img.complete || img.naturalHeight === 0) {
+        img.onerror = () => {
+          img.src = getRandomProfilePicture();
+          img.onerror = null;
+        };
+      }
+    });
+
+    // Wait for all images to load or error out
+    return Promise.all(
+      images.map(
+        (img) =>
+          new Promise((resolve) => {
+            if (img.complete) {
+              resolve(null);
+            } else {
+              img.onload = () => resolve(null);
+              img.onerror = () => resolve(null);
+            }
+          })
+      )
+    );
+  }, []);
+
+  const generateCertificateImage = useCallback(async () => {
     if (!certificateRef.current) return null;
 
     try {
       // Preload images to avoid loading errors during html2canvas rendering
-      const images = Array.from(certificateRef.current.querySelectorAll("img"));
-
-      // Add error handler to replace broken images with placeholders
-      images.forEach((img) => {
-        if (!img.complete || img.naturalHeight === 0) {
-          img.onerror = () => {
-            img.src = getRandomProfilePicture();
-            img.onerror = null;
-          };
-        }
-      });
-
-      // Wait for all images to load or error out
-      await Promise.all(
-        images.map(
-          (img) =>
-            new Promise((resolve) => {
-              if (img.complete) {
-                resolve(null);
-              } else {
-                img.onload = () => resolve(null);
-                img.onerror = () => resolve(null);
-              }
-            })
-        )
-      );
+      await preloadImages();
 
       // Temporarily replace oklch() colors with supported format
       const elements =
@@ -171,9 +187,9 @@ const BuildsCongoClient = ({ buildSlug }: { buildSlug: string }) => {
       console.error("Error generating certificate image:", error);
       return null;
     }
-  };
+  }, [preloadImages]);
 
-  const shareToCommunity = async () => {
+  const shareToCommunity = useCallback(async () => {
     if (!build) return;
 
     const text = encodeURIComponent(
@@ -182,43 +198,10 @@ const BuildsCongoClient = ({ buildSlug }: { buildSlug: string }) => {
       } build on @ForgeZone! 🚀 #ForgeZone #${build.name.replace(/\s+/g, "")}`
     );
     window.open(`https://twitter.com/intent/tweet?text=${text}`, "_blank");
-  };
+  }, [build]);
 
-  const downloadCertificate = async () => {
+  const downloadCertificate = useCallback(async () => {
     if (!certificateRef.current) return;
-
-    // Preload images to avoid loading errors during html2canvas rendering
-    const preloadImages = async () => {
-      const images = Array.from(
-        certificateRef.current!.querySelectorAll("img")
-      );
-
-      // Add event listeners for error handling on images
-      images.forEach((img) => {
-        // Add error handler to replace broken images with placeholders
-        if (!img.complete || img.naturalHeight === 0) {
-          img.onerror = () => {
-            img.src = getRandomProfilePicture(); // Fallback to a random profile picture
-            img.onerror = null; // Prevent infinite error loops
-          };
-        }
-      });
-
-      // Wait for all images to load or error out
-      return Promise.all(
-        images.map(
-          (img) =>
-            new Promise((resolve) => {
-              if (img.complete) {
-                resolve(null);
-              } else {
-                img.onload = () => resolve(null);
-                img.onerror = () => resolve(null);
-              }
-            })
-        )
-      );
-    };
 
     try {
       // Wait for images to load before rendering
@@ -274,12 +257,10 @@ const BuildsCongoClient = ({ buildSlug }: { buildSlug: string }) => {
         el.style.cssText = originalStyles[i];
       });
     } catch (error) {
-      console.error("Error generating certificate:", error);
-      alert(
-        "There was an error generating your certificate. Please try again."
-      );
+      console.error("Error downloading certificate:", error);
+      toast.error("Failed to download certificate. Please try again.");
     }
-  };
+  }, [preloadImages, user?.username]);
 
   if (!build || !user) {
     return (
@@ -492,6 +473,6 @@ const BuildsCongoClient = ({ buildSlug }: { buildSlug: string }) => {
       </div>
     </div>
   );
-};
+});
 
 export default BuildsCongoClient;

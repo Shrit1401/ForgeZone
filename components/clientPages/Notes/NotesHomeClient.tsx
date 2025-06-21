@@ -1,31 +1,91 @@
 "use client";
-import Btn from "@/components/Btn";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { getAllNotes } from "@/lib/notes/notes";
 import { Note } from "@prisma/client";
+import Btn from "@/components/Btn";
 import Link from "next/link";
-import Image from "next/image";
 import NotesCardSkeleton from "@/components/skeletons/NotesCardSkeleton";
 
 // Extended Note type to include username and readTime which aren't in the Prisma model
 type ExtendedNote = Note & {
   username?: string;
   readTime?: string;
+  author?: {
+    username?: string;
+    pfp?: string;
+  };
 };
 
-const NotesHomeClient = () => {
+const NotesHomeClient = React.memo(() => {
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchNotes = async () => {
       setLoading(true);
-      await getAllNotes(setNotes);
-      setLoading(false);
+      try {
+        await getAllNotes(setNotes);
+      } catch (error) {
+        console.error("Error fetching notes:", error);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchNotes();
   }, []);
+
+  const skeletonCards = useMemo(
+    () =>
+      Array(6)
+        .fill(0)
+        .map((_, index) => <NotesCardSkeleton key={index} />),
+    []
+  );
+
+  const renderedNotes = useMemo(
+    () =>
+      notes.map((note) => {
+        // Treat as extended note for UI display
+        const extendedNote = note as ExtendedNote;
+        return (
+          <Link
+            href={`/notes/${note.slug}`}
+            key={note.id}
+            className={`flex-1 min-w-[370px] min-h-[185px] aspect-[16/10] bg-cover bg-center bg-no-repeat p-6 rounded-xl hover:brightness-150 border-2 border-white/10 hover:border-white/30 transition-all duration-300 cursor-pointer bg-black/50 hover:bg-black/30 flex justify-between flex-col relative`}
+            style={{ backgroundImage: `url('${note.cardImage}')` }}
+          >
+            <div className="border border-white/10 w-fit backdrop-blur bg-gradient-to-r from-white/10 to-white/5 text-white manrope font-bold px-2 py-1 rounded-full z-10">
+              {note.tag}
+            </div>
+            <div className="z-10">
+              <h3 className="text-white manrope font-bold text-xl mb-2 line-clamp-2">
+                {note.title}
+              </h3>
+              <p className="text-white/80 manrope text-sm line-clamp-2">
+                {note.title}
+              </p>
+              <div className="flex items-center gap-2 mt-3">
+                <img
+                  src={
+                    extendedNote.author?.pfp || note.userPfp || "/pfp/pfp-1.png"
+                  }
+                  alt={extendedNote.author?.username || "Author"}
+                  className="h-6 w-6 rounded-full"
+                  loading="lazy"
+                />
+                <span className="text-white/70 manrope text-sm">
+                  {extendedNote.author?.username ||
+                    extendedNote.username ||
+                    "Anonymous"}
+                </span>
+              </div>
+            </div>
+          </Link>
+        );
+      }),
+    [notes]
+  );
 
   return (
     <div className="relative">
@@ -64,59 +124,7 @@ const NotesHomeClient = () => {
         className="relative z-10 mt-0 sm:mt-[100vh] backdrop-blur-3xl bg-black/70 p-12 min-h-screen"
       >
         <div className="flex flex-wrap items-center justify-center my-10 mx-10 gap-6">
-          {loading ? (
-            // Loading state - show skeleton loaders using our component
-            Array(6)
-              .fill(0)
-              .map((_, index) => <NotesCardSkeleton key={index} />)
-          ) : notes.length > 0 ? (
-            // Display actual notes
-            notes.map((note) => {
-              // Treat as extended note for UI display
-              const extendedNote = note as ExtendedNote;
-              return (
-                <Link
-                  href={`/notes/${note.slug}`}
-                  key={note.id}
-                  className={`flex-1 min-w-[370px] min-h-[185px] aspect-[16/10] bg-cover bg-center bg-no-repeat p-6 rounded-xl hover:brightness-150 border-2 border-white/10 hover:border-white/30 transition-all duration-300 cursor-pointer bg-black/50 hover:bg-black/30 flex justify-between flex-col relative`}
-                  style={{ backgroundImage: `url('${note.cardImage}')` }}
-                >
-                  <div className="border border-white/10 w-fit backdrop-blur bg-gradient-to-r from-white/10 to-white/5 text-white manrope font-bold px-2 py-1 rounded-full z-10">
-                    {note.tag}
-                  </div>
-                  <div>
-                    <h3 className="text-lg manrope font-bold text-white/90 z-10 relative">
-                      {note.title}
-                    </h3>
-                    <div className="flex items-center gap-2">
-                      <Image
-                        src={note.userPfp}
-                        alt="user"
-                        width={40}
-                        height={40}
-                        className="rounded-full mt-2"
-                      />
-                      <span>
-                        <b>{extendedNote.username || "Builder"}</b> •{" "}
-                        {extendedNote.readTime || "5"} min read
-                      </span>
-                    </div>
-                  </div>
-                </Link>
-              );
-            })
-          ) : (
-            // No notes found
-            <div className="text-center py-20 w-full">
-              <h3 className="text-xl font-medium text-white mb-2">
-                No notes found
-              </h3>
-              <p className="text-white/50 mb-6">
-                Be the first to contribute a note!
-              </p>
-              <Btn link="/d/notes/new" title="Create New Note" />
-            </div>
-          )}
+          {loading ? skeletonCards : renderedNotes}
         </div>
       </section>
       <div
@@ -136,6 +144,8 @@ const NotesHomeClient = () => {
       </div>
     </div>
   );
-};
+});
+
+NotesHomeClient.displayName = "NotesHomeClient";
 
 export default NotesHomeClient;

@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback, useMemo } from "react";
 import logo from "@/public/logo.png";
 import Image from "next/image";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/16/solid";
@@ -20,9 +20,24 @@ import {
 } from "@/components/ui/dropdown-menu";
 import posthog from "posthog-js";
 
-const Navbar = () => {
+const Navbar = React.memo(() => {
   const [user, setUser] = React.useState<UserType | null | undefined>(null);
   const [loading, setLoading] = React.useState(true);
+  const [menuOpen, setMenuOpen] = React.useState(false);
+
+  const links = useMemo(
+    () => [
+      { name: "builds", link: "/builds" },
+      // { name: "work", link: "/work" },
+      // { name: "notes", link: "/notes" },
+      {
+        name: "discord",
+        link: "https://discord.gg/e3RfmAVAXV",
+        target: "_blank",
+      },
+    ],
+    []
+  );
 
   useEffect(() => {
     const getUser = async () => {
@@ -31,7 +46,7 @@ const Navbar = () => {
     getUser();
   }, []);
 
-  const handleSignOut = async () => {
+  const handleSignOut = useCallback(async () => {
     const res = await userSignOut();
     if (res) {
       toast.success("Signed out successfully");
@@ -42,19 +57,15 @@ const Navbar = () => {
     }
     setUser(null);
     setLoading(false);
-  };
+  }, []);
 
-  const [menuOpen, setMenuOpen] = React.useState(false);
-  const links = [
-    { name: "builds", link: "/builds" },
-    // { name: "work", link: "/work" },
-    // { name: "notes", link: "/notes" },
-    {
-      name: "discord",
-      link: "https://discord.gg/e3RfmAVAXV",
-      target: "_blank",
-    },
-  ];
+  const toggleMenu = useCallback(() => {
+    setMenuOpen((prev) => !prev);
+  }, []);
+
+  const closeMenu = useCallback(() => {
+    setMenuOpen(false);
+  }, []);
 
   return (
     <nav
@@ -74,6 +85,7 @@ const Navbar = () => {
           width={120}
           height={60}
           className="hover:opacity-50 transition-all duration-200 sm:w-[150px]"
+          priority
         />
       </motion.a>
 
@@ -91,6 +103,7 @@ const Navbar = () => {
                 src={user.pfp}
                 className="h-10 w-10 rounded-full cursor-pointer"
                 alt={user.username}
+                loading="lazy"
               />
             </motion.div>
           </ProfileDropdown>
@@ -100,7 +113,7 @@ const Navbar = () => {
         <motion.div className="md:hidden" whileTap={{ scale: 0.9 }}>
           <button
             className="h-8 w-8 text-white cursor-pointer"
-            onClick={() => setMenuOpen(!menuOpen)}
+            onClick={toggleMenu}
             aria-label="Toggle menu"
           >
             {menuOpen ? (
@@ -125,12 +138,12 @@ const Navbar = () => {
             <ul className="flex flex-col w-full manrope text-xl">
               {links.map((link, index) => (
                 <motion.li
-                  key={index}
+                  key={link.name}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: index * 0.1 }}
                   className="hover:bg-[rgba(255,255,255,0.1)] transition-all duration-200"
-                  onClick={() => setMenuOpen(false)}
+                  onClick={closeMenu}
                 >
                   <Link
                     href={link.link}
@@ -147,7 +160,7 @@ const Navbar = () => {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: links.length * 0.1 }}
                   className="p-4"
-                  onClick={() => setMenuOpen(false)}
+                  onClick={closeMenu}
                 >
                   <Btn title="Start" link="/start" />
                 </motion.li>
@@ -161,7 +174,7 @@ const Navbar = () => {
       <ul className="hidden md:flex md:flex-row md:static md:bg-transparent justify-center md:gap-6 manrope text-xl text-white flex-grow text-center">
         {links.map((link, index) => (
           <motion.li
-            key={index}
+            key={link.name}
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 + 0.2 }}
@@ -201,17 +214,17 @@ const Navbar = () => {
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.5 }}
-                className="flex justify-center gap-2 cursor-pointer items-center hover:scale-105 transition-all duration-200"
+                whileHover={{ scale: 1.05 }}
+                className="flex items-center gap-2 text-white hover:text-white/80 transition-all duration-200"
               >
-                <h3 className="text-white manrope text-lg font-semibold cursor-pointer">
-                  {user.username}
-                </h3>
-                <ChevronDown className="h-5 w-5 text-white" />
                 <img
                   src={user.pfp}
-                  className="h-12 w-12 rounded-full ml-2 cursor-pointer"
+                  className="h-10 w-10 rounded-full cursor-pointer"
                   alt={user.username}
+                  loading="lazy"
                 />
+                <span className="manrope font-medium">{user.username}</span>
+                <ChevronDown className="h-4 w-4" />
               </motion.a>
             </ProfileDropdown>
           </div>
@@ -219,7 +232,9 @@ const Navbar = () => {
       </div>
     </nav>
   );
-};
+});
+
+Navbar.displayName = "Navbar";
 
 const ProfileDropdown = ({
   children,

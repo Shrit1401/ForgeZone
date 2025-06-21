@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo, useCallback } from "react";
 import { getLoggedInUser, getUserCompletetion } from "@/lib/auth/auth";
 import { getBuilds } from "@/lib/build/build";
 import { SingleProject } from "@/types/project.types";
@@ -8,7 +8,7 @@ import { BuildsPageSkeleton } from "@/components/skeletons/buildHomeSkeleton";
 import BuildsCard from "../Builds/BuildsCard";
 import { AlertCircle } from "lucide-react";
 
-const BuildsPageClient = () => {
+const BuildsPageClient = React.memo(() => {
   const [user, setUser] = React.useState<UserType | undefined | null>();
   const [builds, setBuilds] = React.useState<SingleProject[]>([]);
   const [loading, setLoading] = React.useState(true);
@@ -30,13 +30,21 @@ const BuildsPageClient = () => {
     }
   }, [user]);
 
-  const getBuildDetails = (projectName: string): SingleProject | undefined => {
-    return builds.find((build) => build.name === projectName);
-  };
+  const getBuildDetails = useCallback(
+    (projectName: string): SingleProject | undefined => {
+      return builds.find((build) => build.name === projectName);
+    },
+    [builds]
+  );
 
-  const userProjectNames = user?.projects.map((p) => p.projectname) || [];
-  const filteredBuilds = builds.filter(
-    (build) => !userProjectNames.includes(build.name)
+  const userProjectNames = useMemo(
+    () => user?.projects.map((p) => p.projectname) || [],
+    [user?.projects]
+  );
+
+  const filteredBuilds = useMemo(
+    () => builds.filter((build) => !userProjectNames.includes(build.name)),
+    [builds, userProjectNames]
   );
 
   if (loading) {
@@ -70,7 +78,7 @@ const BuildsPageClient = () => {
 
               return (
                 <BuildsCard
-                  key={index}
+                  key={`${userProject.projectname}-${index}`}
                   title={buildDetails.name}
                   description={buildDetails.oneLiner}
                   imageUrl={buildDetails.activeImg}
@@ -92,7 +100,7 @@ const BuildsPageClient = () => {
           <div className="flex flex-wrap mt-6">
             {filteredBuilds.map((build, index) => (
               <BuildsCard
-                key={index}
+                key={`${build.name}-${index}`}
                 title={build.name}
                 description={build.oneLiner}
                 imageUrl={build.activeImg}
@@ -112,6 +120,8 @@ const BuildsPageClient = () => {
       </section>
     </div>
   );
-};
+});
+
+BuildsPageClient.displayName = "BuildsPageClient";
 
 export default BuildsPageClient;

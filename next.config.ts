@@ -3,10 +3,45 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   images: {
     domains: ["i.imgur.com", "i.postimg.cc"],
+    formats: ["image/webp", "image/avif"],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
   serverExternalPackages: ["@prisma/client", "prisma"],
   // This is required to support PostHog trailing slash API requests
   skipTrailingSlashRedirect: true,
+
+  // Performance optimizations
+  experimental: {
+    optimizeCss: true,
+    optimizePackageImports: [
+      "@heroicons/react",
+      "lucide-react",
+      "react-icons",
+      "@radix-ui/react-avatar",
+      "@radix-ui/react-checkbox",
+      "@radix-ui/react-dialog",
+      "@radix-ui/react-dropdown-menu",
+      "@radix-ui/react-label",
+      "@radix-ui/react-progress",
+      "@radix-ui/react-select",
+      "@radix-ui/react-slot",
+    ],
+  },
+
+  // Compression
+  compress: true,
+
+  // Bundle analyzer (uncomment for analysis)
+  // webpack: (config, { isServer }) => {
+  //   if (!isServer) {
+  //     config.resolve.fallback = {
+  //       ...config.resolve.fallback,
+  //       fs: false,
+  //     };
+  //   }
+  //   return config;
+  // },
 
   async rewrites() {
     return [
