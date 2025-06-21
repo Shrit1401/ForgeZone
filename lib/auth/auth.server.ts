@@ -4,6 +4,7 @@ import db from "../db";
 import { getRandomProfilePicture } from "../utils";
 import { InternshipOrJob, UserType } from "@/types/user.types";
 import { SingleProject } from "@/types/project.types";
+import { sendWelcomeEmail, createContact } from "../email/email.service";
 
 export async function createUser(user: User) {
   try {
@@ -33,6 +34,36 @@ export async function createUser(user: User) {
         projectsNum: 0,
       },
     });
+
+    // Send welcome email and create contact for new users
+    if (res && user.email) {
+      console.log("Attempting to send welcome email to:", user.email);
+      try {
+        await sendWelcomeEmail({
+          userEmail: user.email,
+          userFirstName: res.name || user.user_metadata?.full_name || undefined,
+        });
+
+        // Create contact in Resend
+        await createContact({
+          email: user.email,
+          firstName: res.name || user.user_metadata?.full_name || undefined,
+          lastName: undefined,
+          unsubscribed: false,
+          audienceId: "b93f0fd4-a924-4693-8eac-359010084c5c",
+        });
+        console.log(
+          "Welcome email and contact creation completed successfully"
+        );
+      } catch (emailError) {
+        console.error(
+          "Failed to send welcome email or create contact:",
+          emailError
+        );
+        // Don't fail the user creation if email/contact creation fails
+      }
+    }
+
     return res as unknown as UserType;
   } catch (error) {
     return null;

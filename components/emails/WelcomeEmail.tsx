@@ -26,12 +26,11 @@ export const WelcomeEmail = ({
         <Text>Hey {userFirstName},</Text>
 
         <Img
-          src={`${
-            process.env.NEXT_PUBLIC_NEXT_URL || "http://localhost:3000"
-          }/welcome.png`}
-          width="600"
-          height="300"
+          src={`https://i.postimg.cc/GhWTd7CT/image.png`}
           alt="Welcome to Forge Zone"
+          style={{
+            objectFit: "cover",
+          }}
         />
 
         <Text>Welcome to Forge Zone — glad to have you on board!</Text>

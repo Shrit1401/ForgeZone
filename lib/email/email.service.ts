@@ -2,7 +2,11 @@ import { Resend } from "resend";
 import { render } from "@react-email/render";
 import WelcomeEmail from "@/components/emails/WelcomeEmail";
 
-const resendApiKey = process.env.NEXT_PUBLIC_RESEND_API;
+const resendApiKey = process.env.RESEND_API_KEY;
+
+if (!resendApiKey) {
+  console.error("RESEND_API_KEY is not set in environment variables");
+}
 
 const resend = new Resend(resendApiKey);
 
