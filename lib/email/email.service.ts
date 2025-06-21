@@ -4,11 +4,11 @@ import WelcomeEmail from "@/components/emails/WelcomeEmail";
 
 const resendApiKey = process.env.RESEND_API_KEY;
 
-if (!resendApiKey) {
-  console.error("RESEND_API_KEY is not set in environment variables");
-}
+const resend = resendApiKey ? new Resend(resendApiKey) : null;
 
-const resend = new Resend(resendApiKey);
+if (!resend) {
+  console.warn("RESEND_API_KEY is not set. Email sending will be disabled.");
+}
 
 export interface SendWelcomeEmailParams {
   userEmail: string;
@@ -27,6 +27,13 @@ export async function sendWelcomeEmail({
   userEmail,
   userFirstName,
 }: SendWelcomeEmailParams) {
+  if (!resend) {
+    console.error("Resend is not initialized. Please set RESEND_API_KEY.");
+    return {
+      success: false,
+      error: "Email service is not configured.",
+    };
+  }
   try {
     // Extract first name from email if not provided
     const firstName = userFirstName || userEmail.split("@")[0];
@@ -66,6 +73,13 @@ export async function createContact({
   unsubscribed = false,
   audienceId,
 }: CreateContactParams) {
+  if (!resend) {
+    console.error("Resend is not initialized. Please set RESEND_API_KEY.");
+    return {
+      success: false,
+      error: "Email service is not configured.",
+    };
+  }
   try {
     const { data, error } = await resend.contacts.create({
       email,
