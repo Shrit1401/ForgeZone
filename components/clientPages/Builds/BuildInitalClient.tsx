@@ -132,24 +132,6 @@ const BuildInitalClient = ({ buildSlug }: { buildSlug: string }) => {
     setTwitterUrl(`https://twitter.com/intent/tweet?text=${twitterText}`);
   };
 
-  if (error) {
-    return (
-      <div className="mt-[5rem] h-screen flex items-center justify-center">
-        <div className="text-center p-8 bg-red-900/20 border border-red-500/30 rounded-lg">
-          <h2 className="text-xl font-bold text-white mb-2">
-            Error Loading Page
-          </h2>
-          <p className="text-white/70 mb-4">{error}</p>
-          <Btn
-            title="Go Back to Builds"
-            className="w-fit mx-auto"
-            onClick={() => (window.location.href = "/builds")}
-          />
-        </div>
-      </div>
-    );
-  }
-
   if (loading) {
     return <BuildHomeSkeleton />;
   }
