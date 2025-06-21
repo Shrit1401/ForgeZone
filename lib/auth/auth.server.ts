@@ -5,6 +5,60 @@ import { getRandomProfilePicture } from "../utils";
 import { InternshipOrJob, UserType } from "@/types/user.types";
 import { SingleProject } from "@/types/project.types";
 import { sendWelcomeEmail, createContact } from "../email/email.service";
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
+
+// Server-side Supabase client
+export const createServerSupabaseClient = async () => {
+  const cookieStore = await cookies();
+
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return cookieStore.get(name)?.value;
+        },
+        set(name: string, value: string, options: any) {
+          try {
+            cookieStore.set({ name, value, ...options });
+          } catch (error) {
+            // Handle cookie setting error
+          }
+        },
+        remove(name: string, options: any) {
+          try {
+            cookieStore.set({ name, value: "", ...options });
+          } catch (error) {
+            // Handle cookie removal error
+          }
+        },
+      },
+    }
+  );
+};
+
+// Server-side function to get authenticated user
+export const getServerUser = async (): Promise<UserType | null> => {
+  try {
+    const supabase = await createServerSupabaseClient();
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
+
+    if (error || !user) {
+      return null;
+    }
+
+    const userData = await getUserById(user.id);
+    return userData;
+  } catch (error) {
+    console.error("Error getting server user:", error);
+    return null;
+  }
+};
 
 export async function createUser(user: User) {
   try {

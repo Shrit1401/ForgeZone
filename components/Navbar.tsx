@@ -7,7 +7,7 @@ import Btn from "./Btn";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { UserType } from "@/types/user.types";
-import { getLoggedInUser, userSignOut } from "@/lib/auth/auth";
+import { useAuth } from "@/lib/auth/auth";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ChevronDown } from "lucide-react";
 import { toast } from "sonner";
@@ -21,28 +21,24 @@ import {
 import posthog from "posthog-js";
 
 const Navbar = () => {
-  const [user, setUser] = React.useState<UserType | null | undefined>(null);
-  const [loading, setLoading] = React.useState(true);
-
-  useEffect(() => {
-    const getUser = async () => {
-      await getLoggedInUser(setUser, setLoading);
-    };
-    getUser();
-  }, []);
+  const { user, loading, error, signOut } = useAuth();
 
   const handleSignOut = async () => {
-    const res = await userSignOut();
-    if (res) {
+    const success = await signOut();
+    if (success) {
       toast.success("Signed out successfully");
       window.location.href = "/";
-    }
-    if (!res) {
+    } else {
       toast.error("Error signing out");
     }
-    setUser(null);
-    setLoading(false);
   };
+
+  // Show error toast if there's an auth error
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+    }
+  }, [error]);
 
   const [menuOpen, setMenuOpen] = React.useState(false);
   const links = [
