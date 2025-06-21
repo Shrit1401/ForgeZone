@@ -79,8 +79,8 @@ const BuildsCard = ({
                 isCompleted
                   ? "View Certificate"
                   : mode === "user"
-                  ? "View Build"
-                  : "Start"
+                    ? "View Build"
+                    : "Start"
               }
               type="outline"
               size="small"

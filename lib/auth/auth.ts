@@ -1,10 +1,9 @@
-import { ProjectUser, UserType } from "@/types/user.types";
+import { UserType } from "@/types/user.types";
 import { createUser, getUserById } from "./auth.server";
 import { supabaseClient } from "@/supabase/client";
 import { SingleProject } from "@/types/project.types";
 import { updateUserProject } from "../build/builds.server";
-
-const url = process.env.NEXT_PUBLIC_NEXT_URL || "http://localhost:3000";
+import { sendWelcomeEmail, createContact } from "../email/email.service";
 
 export async function signInWithEmail(email: string, password: string) {
   const { data, error } = await supabaseClient.auth.signInWithPassword({
@@ -27,7 +26,32 @@ export async function signUpWithEmail(email: string, password: string) {
   });
 
   if (data.user) {
-    await createUser(data.user);
+    const newUser = await createUser(data.user);
+
+    // Send welcome email and create contact
+    if (newUser) {
+      try {
+        await sendWelcomeEmail({
+          userEmail: email,
+          userFirstName: newUser.name || undefined,
+        });
+
+        // Create contact in Resend
+        await createContact({
+          email: email,
+          firstName: newUser.name || undefined,
+          lastName: undefined,
+          unsubscribed: false,
+          audienceId: "b93f0fd4-a924-4693-8eac-359010084c5c",
+        });
+      } catch (emailError) {
+        console.error(
+          "Failed to send welcome email or create contact:",
+          emailError
+        );
+        // Don't fail the signup if email/contact creation fails
+      }
+    }
   }
   if (error) {
     console.log("Error signing in:", error);
@@ -45,7 +69,34 @@ export async function signUpWithGoogle() {
   const { data: userData, error: userError } =
     await supabaseClient.auth.getUser();
   if (userData.user) {
-    await createUser(userData.user);
+    const newUser = await createUser(userData.user);
+
+    // Send welcome email and create contact for Google signup
+    if (newUser && userData.user.email) {
+      try {
+        await sendWelcomeEmail({
+          userEmail: userData.user.email,
+          userFirstName:
+            newUser.name || userData.user.user_metadata?.full_name || undefined,
+        });
+
+        // Create contact in Resend
+        await createContact({
+          email: userData.user.email,
+          firstName:
+            newUser.name || userData.user.user_metadata?.full_name || undefined,
+          lastName: undefined,
+          unsubscribed: false,
+          audienceId: "b93f0fd4-a924-4693-8eac-359010084c5c",
+        });
+      } catch (emailError) {
+        console.error(
+          "Failed to send welcome email or create contact:",
+          emailError
+        );
+        // Don't fail the signup if email/contact creation fails
+      }
+    }
   }
 
   if (error || userError) {
@@ -81,6 +132,34 @@ export const getLoggedInUser = async (
       setUser(existingUser);
     } else {
       const newUser = await createUser(authUser);
+
+      // Send welcome email and create contact for new users (especially from Google OAuth)
+      if (newUser && authUser.email) {
+        try {
+          await sendWelcomeEmail({
+            userEmail: authUser.email,
+            userFirstName:
+              newUser.name || authUser.user_metadata?.full_name || undefined,
+          });
+
+          // Create contact in Resend
+          await createContact({
+            email: authUser.email,
+            firstName:
+              newUser.name || authUser.user_metadata?.full_name || undefined,
+            lastName: undefined,
+            unsubscribed: false,
+            audienceId: "b93f0fd4-a924-4693-8eac-359010084c5c",
+          });
+        } catch (emailError) {
+          console.error(
+            "Failed to send welcome email or create contact:",
+            emailError
+          );
+          // Don't fail the login if email/contact creation fails
+        }
+      }
+
       setUser(newUser ?? null);
     }
   } catch (err) {

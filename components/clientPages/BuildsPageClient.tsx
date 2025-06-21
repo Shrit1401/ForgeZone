@@ -59,6 +59,7 @@ const BuildsPageClient = () => {
           </div>
         </div>
       )}
+
       {user?.projects && user.projects.length > 0 && (
         <section className="mb-12">
           <h2 className="text-3xl font-bold manrope">My Builds</h2>

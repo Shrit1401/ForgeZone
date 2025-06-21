@@ -9,6 +9,7 @@ export type SingleProject = {
   activeImg: string;
   projectSlug: string;
   projectType: ProjectType;
+  demoUrl?: string;
   stepsLength: number;
   steps: Step[];
 };
