@@ -126,16 +126,45 @@ export async function createUser(user: User) {
 
 export async function getUserById(id: string) {
   try {
-    // Use Prisma's include to perform a single query instead of multiple queries
+    // Use more specific select to only fetch what's needed
     const userData = await db.user.findUnique({
       where: {
         id: id,
       },
-      include: {
-        socials: true,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        username: true,
+        pfp: true,
+        oneLiner: true,
+        location: true,
+        whatworkingrn: true,
+        internshipOrJob: true,
+        projectsNum: true,
+        socials: {
+          select: {
+            github: true,
+            linkedIn: true,
+            twitter: true,
+          },
+        },
         projects: {
-          include: {
-            messages: true,
+          select: {
+            id: true,
+            projectname: true,
+            isDiscordConnected: true,
+            isTwitterShared: true,
+            total: true,
+            current: true,
+            userId: true,
+            messages: {
+              select: {
+                id: true,
+                message: true,
+                target: true,
+              },
+            },
           },
         },
       },
@@ -172,7 +201,6 @@ export async function getUserById(id: string) {
         total: projectUser.total,
         current: projectUser.current,
         userId: projectUser.userId,
-
         messages: projectUser.messages.map((message) => ({
           id: message.id,
           message: message.message,
@@ -183,6 +211,7 @@ export async function getUserById(id: string) {
 
     return user;
   } catch (error) {
+    console.error("Error fetching user by ID:", error);
     return null;
   }
 }

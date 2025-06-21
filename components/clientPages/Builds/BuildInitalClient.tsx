@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { XCircleIcon, CheckCircleIcon } from "@heroicons/react/16/solid";
 import { FaTwitter } from "react-icons/fa";
 import Btn from "@/components/Btn";
@@ -26,75 +26,71 @@ import Bottombar from "@/components/build/Bottombar";
 const BuildInitalClient = ({ buildSlug }: { buildSlug: string }) => {
   const [build, setBuild] = useState<SingleProject>();
   const [user, setUser] = useState<UserType | null | undefined>();
-  const [userProject, setUserProject] = useState<ProjectUser | null>(null);
   const [loading, setLoading] = useState(true);
-  const [percentage, setPercentage] = useState(0);
-
-  const [isDiscordConnected, setIsDiscordConnected] = useState(false);
-  const [isTwitterConnected, setIsTwitterConnected] = useState(false);
-
   const [twitterUrl, setTwitterUrl] = useState<string | null>(null);
 
-  const buildParam = buildSlug;
+  // Memoized calculations to prevent unnecessary re-renders
+  const userProject = useMemo(() => {
+    if (!user || !build) return null;
+    const res = getProjectFromUser(user, build.name);
+    if (res) {
+      return res;
+    } else {
+      return {
+        projectname: build.name,
+        current: 0,
+        total: build.steps.reduce(
+          (acc, step) => acc + step.stepItems.length,
+          0
+        ),
+        isDiscordConnected: false,
+        isTwitterShared: false,
+      } as ProjectUser;
+    }
+  }, [user, build]);
 
+  const percentage = useMemo(() => {
+    if (!userProject) return 0;
+    return Math.floor((userProject.current / userProject.total) * 100);
+  }, [userProject]);
+
+  const isDiscordConnected = useMemo(() => {
+    return userProject?.isDiscordConnected || false;
+  }, [userProject]);
+
+  const isTwitterConnected = useMemo(() => {
+    return userProject?.isTwitterShared || false;
+  }, [userProject]);
+
+  // Parallel data fetching instead of sequential
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        await getLoggedInUser(setUser, setLoading);
-      } catch (err) {
-        console.error("Error fetching user:", err);
+    const fetchData = async () => {
+      if (!buildSlug) {
         setLoading(false);
+        return;
       }
-    };
 
-    fetchUser();
-  }, []);
-
-  useEffect(() => {
-    const fetchBuild = async () => {
+      setLoading(true);
       try {
-        if (!buildParam) {
-          setLoading(false);
-          return;
-        }
+        // Fetch user and build data in parallel
+        const [userResult, buildResult] = await Promise.all([
+          getLoggedInUser(setUser),
+          getBuildBySlug(buildSlug, setBuild),
+        ]);
 
-        await getBuildBySlug(buildParam, setBuild);
+        // Handle any errors from the parallel requests
+        if (!userResult && !buildResult) {
+          console.error("Failed to fetch both user and build data");
+        }
       } catch (error) {
-        console.error("Error fetching build:", error);
+        console.error("Error fetching data:", error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchBuild();
-  }, [buildParam]);
-
-  useEffect(() => {
-    if (user && build) {
-      const res = getProjectFromUser(user, build.name);
-      if (res) {
-        setIsDiscordConnected(res.isDiscordConnected);
-        setIsTwitterConnected(res.isTwitterShared);
-        setUserProject(res);
-        setPercentage(Math.floor((res.current / res.total) * 100));
-      } else {
-        setIsDiscordConnected(false);
-        setIsTwitterConnected(false);
-        setUserProject(null);
-
-        setUserProject({
-          projectname: build.name,
-          current: 0,
-          total: build.steps.reduce(
-            (acc, step) => acc + step.stepItems.length,
-            0
-          ),
-          isDiscordConnected: false,
-          isTwitterShared: false,
-        } as ProjectUser);
-      }
-    }
-  }, [user, build]);
+    fetchData();
+  }, [buildSlug]);
 
   useEffect(() => {
     if (twitterUrl) {
@@ -114,7 +110,8 @@ const BuildInitalClient = ({ buildSlug }: { buildSlug: string }) => {
     );
 
     if (twitterDB) {
-      setIsTwitterConnected(true);
+      // Force re-render by updating user state
+      setUser((prev) => (prev ? { ...prev } : prev));
     } else {
       toast.error("Error sharing on Twitter");
       return;
@@ -202,7 +199,10 @@ const BuildInitalClient = ({ buildSlug }: { buildSlug: string }) => {
             isDiscordConnected={isDiscordConnected}
             build={build}
             user={user}
-            setIsDiscordConnected={setIsDiscordConnected}
+            setIsDiscordConnected={(connected) => {
+              // Force re-render by updating user state
+              setUser((prev) => (prev ? { ...prev } : prev));
+            }}
           />
         </div>
       </section>

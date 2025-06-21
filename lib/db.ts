@@ -4,7 +4,20 @@ const MAX_RETRIES = 3;
 
 class PrismaClientWithRetry extends PrismaClient {
   constructor(options = {}) {
-    super(options);
+    super({
+      ...options,
+      // Add connection pool settings for production
+      datasources: {
+        db: {
+          url: process.env.DATABASE_URL,
+        },
+      },
+      // Optimize logging for production
+      log:
+        process.env.NODE_ENV === "development"
+          ? ["query", "error", "warn"]
+          : ["error"],
+    });
 
     // Add middleware for automatic retries on prepared statement errors
     this.$use(async (params, next) => {

@@ -243,35 +243,38 @@ export const useAuth = () => {
 
 // Legacy function for backward compatibility
 export const getLoggedInUser = async (
-  setUser: React.Dispatch<React.SetStateAction<UserType | null | undefined>>,
+  setUser?: React.Dispatch<React.SetStateAction<UserType | null | undefined>>,
   setLoading?: React.Dispatch<React.SetStateAction<boolean>>
-) => {
+): Promise<UserType | null> => {
   if (setLoading) setLoading(true);
 
   try {
     const { data, error } = await supabaseClient.auth.getUser();
     if (error) {
       console.log("Error fetching user:", error.message);
-      setUser(null);
-      return;
+      if (setUser) setUser(null);
+      return null;
     }
 
     const authUser = data?.user;
     if (!authUser) {
-      setUser(null);
-      return;
+      if (setUser) setUser(null);
+      return null;
     }
 
     const existingUser = await getUserById(authUser.id);
     if (existingUser) {
-      setUser(existingUser);
+      if (setUser) setUser(existingUser);
+      return existingUser;
     } else {
       const newUser = await createUser(authUser);
-      setUser(newUser ?? null);
+      if (setUser) setUser(newUser ?? null);
+      return newUser;
     }
   } catch (err) {
     console.log("Unexpected error in getLoggedInUser:", err);
-    setUser(null);
+    if (setUser) setUser(null);
+    return null;
   } finally {
     if (setLoading) setLoading(false);
   }

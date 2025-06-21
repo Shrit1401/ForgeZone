@@ -81,10 +81,33 @@ export const GetBuildBySlug = async (slug: string) => {
       where: {
         projectSlug: slug,
       },
-      include: {
+      select: {
+        id: true,
+        name: true,
+        oneLiner: true,
+        discordRole: true,
+        twitterMessage: true,
+        isFeatured: true,
+        normalImg: true,
+        activeImg: true,
+        projectSlug: true,
+        stepsLength: true,
+        projectType: true,
         steps: {
-          include: {
-            stepItems: true,
+          select: {
+            id: true,
+            name: true,
+            projectId: true,
+            stepItems: {
+              select: {
+                id: true,
+                text: true,
+                slug: true,
+                sourceUrl: true,
+                requirementMessage: true,
+                stepId: true,
+              },
+            },
           },
         },
       },
@@ -123,7 +146,7 @@ export const GetBuildBySlug = async (slug: string) => {
 
     return formattedBuild;
   } catch (error) {
-    console.log("Error fetching build by slug:", error);
+    console.error("Error fetching build by slug:", error);
     return null;
   }
 };
