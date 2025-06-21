@@ -35,21 +35,30 @@ function SuspendedPostHogPageView() {
 
 export function PostHogProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
-    // Initialize PostHog only on client side
-    if (typeof window !== "undefined") {
-      posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
-        api_host:
-          process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://us.i.posthog.com",
-        loaded: (posthog) => {
-          if (process.env.NODE_ENV === "development") posthog.debug();
-        },
-        capture_pageview: false, // We'll handle this manually
-        capture_pageleave: true,
-        disable_session_recording: true, // Disable for performance
-        autocapture: false, // Disable for performance
-      });
+    // Initialize PostHog only on client side and if the key is available
+    if (typeof window !== "undefined" && process.env.NEXT_PUBLIC_POSTHOG_KEY) {
+      try {
+        posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY, {
+          api_host:
+            process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://us.i.posthog.com",
+          loaded: (posthog) => {
+            if (process.env.NODE_ENV === "development") posthog.debug();
+          },
+          capture_pageview: false, // We'll handle this manually
+          capture_pageleave: true,
+          disable_session_recording: true, // Disable for performance
+          autocapture: false, // Disable for performance
+        });
+      } catch (error) {
+        console.warn("Failed to initialize PostHog:", error);
+      }
     }
   }, []);
+
+  // If PostHog key is not available, render children without PostHog
+  if (!process.env.NEXT_PUBLIC_POSTHOG_KEY) {
+    return <>{children}</>;
+  }
 
   return (
     <PHProvider client={posthog}>
