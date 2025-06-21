@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useMemo, useCallback } from "react";
+import React, { useEffect } from "react";
 import { getLoggedInUser, getUserCompletetion } from "@/lib/auth/auth";
 import { getBuilds } from "@/lib/build/build";
 import { SingleProject } from "@/types/project.types";
@@ -8,7 +8,7 @@ import { BuildsPageSkeleton } from "@/components/skeletons/buildHomeSkeleton";
 import BuildsCard from "../Builds/BuildsCard";
 import { AlertCircle } from "lucide-react";
 
-const BuildsPageClient = React.memo(() => {
+const BuildsPageClient = () => {
   const [user, setUser] = React.useState<UserType | undefined | null>();
   const [builds, setBuilds] = React.useState<SingleProject[]>([]);
   const [loading, setLoading] = React.useState(true);
@@ -30,21 +30,13 @@ const BuildsPageClient = React.memo(() => {
     }
   }, [user]);
 
-  const getBuildDetails = useCallback(
-    (projectName: string): SingleProject | undefined => {
-      return builds.find((build) => build.name === projectName);
-    },
-    [builds]
-  );
+  const getBuildDetails = (projectName: string): SingleProject | undefined => {
+    return builds.find((build) => build.name === projectName);
+  };
 
-  const userProjectNames = useMemo(
-    () => user?.projects.map((p) => p.projectname) || [],
-    [user?.projects]
-  );
-
-  const filteredBuilds = useMemo(
-    () => builds.filter((build) => !userProjectNames.includes(build.name)),
-    [builds, userProjectNames]
+  const userProjectNames = user?.projects.map((p) => p.projectname) || [];
+  const filteredBuilds = builds.filter(
+    (build) => !userProjectNames.includes(build.name)
   );
 
   if (loading) {
@@ -78,7 +70,7 @@ const BuildsPageClient = React.memo(() => {
 
               return (
                 <BuildsCard
-                  key={`${userProject.projectname}-${index}`}
+                  key={index}
                   title={buildDetails.name}
                   description={buildDetails.oneLiner}
                   imageUrl={buildDetails.activeImg}
@@ -100,7 +92,7 @@ const BuildsPageClient = React.memo(() => {
           <div className="flex flex-wrap mt-6">
             {filteredBuilds.map((build, index) => (
               <BuildsCard
-                key={`${build.name}-${index}`}
+                key={index}
                 title={build.name}
                 description={build.oneLiner}
                 imageUrl={build.activeImg}
@@ -120,8 +112,6 @@ const BuildsPageClient = React.memo(() => {
       </section>
     </div>
   );
-});
-
-BuildsPageClient.displayName = "BuildsPageClient";
+};
 
 export default BuildsPageClient;

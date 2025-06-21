@@ -2,68 +2,48 @@
 
 import posthog from "posthog-js";
 import { PostHogProvider as PHProvider, usePostHog } from "posthog-js/react";
-import { Suspense, useEffect, lazy } from "react";
+import { Suspense, useEffect } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 
-// Lazy load PostHog to prevent blocking main thread
-const PostHogPageView = lazy(() =>
-  Promise.resolve({
-    default: () => {
-      const posthogClient = usePostHog();
-      const pathname = usePathname();
-      const searchParams = useSearchParams();
+function PageView() {
+  const posthogClient = usePostHog();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
-      useEffect(() => {
-        if (!posthogClient) return;
-        posthogClient.capture("$pageview", {
-          path: pathname + searchParams.toString(),
-        });
-      }, [posthogClient, pathname, searchParams]);
+  useEffect(() => {
+    if (!posthogClient) return;
+    posthogClient.capture("$pageview", {
+      path: pathname + searchParams.toString(),
+    });
+  }, [posthogClient, pathname, searchParams]);
 
-      return null;
-    },
-  })
-);
+  return null;
+}
 
 function SuspendedPostHogPageView() {
   return (
     <Suspense fallback={null}>
-      <PostHogPageView />
+      <PageView />
     </Suspense>
   );
 }
 
 export function PostHogProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
-    // Initialize PostHog only on client side and if the key is available
-    if (typeof window !== "undefined" && process.env.NEXT_PUBLIC_POSTHOG_KEY) {
-      try {
-        posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY, {
-          api_host:
-            process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://us.i.posthog.com",
-          loaded: (posthog) => {
-            if (process.env.NODE_ENV === "development") posthog.debug();
-          },
-          capture_pageview: false, // We'll handle this manually
-          capture_pageleave: true,
-          disable_session_recording: true, // Disable for performance
-          autocapture: false, // Disable for performance
-        });
-      } catch (error) {
-        console.warn("Failed to initialize PostHog:", error);
-      }
-    }
+    posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
+      api_host: "/ingest",
+      ui_host: "https://us.posthog.com",
+      capture_pageview: "history_change",
+      capture_pageleave: true, // Enable pageleave capture
+      capture_exceptions: true, // This enables capturing exceptions using Error Tracking, set to false if you don't want this
+      debug: process.env.NODE_ENV === "development",
+    });
   }, []);
-
-  // If PostHog key is not available, render children without PostHog
-  if (!process.env.NEXT_PUBLIC_POSTHOG_KEY) {
-    return <>{children}</>;
-  }
 
   return (
     <PHProvider client={posthog}>
-      {children}
       <SuspendedPostHogPageView />
+      {children}
     </PHProvider>
   );
 }
