@@ -245,7 +245,15 @@ const ProfileDropdown = ({
   handleSignOut: () => void;
   user: UserType;
 }>) => {
-  posthog.identify(user.email);
+  // Only identify user if PostHog is available
+  if (typeof window !== "undefined" && process.env.NEXT_PUBLIC_POSTHOG_KEY) {
+    try {
+      posthog.identify(user.email);
+    } catch (error) {
+      console.warn("Failed to identify user in PostHog:", error);
+    }
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="focus:outline-none">

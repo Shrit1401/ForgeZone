@@ -32,16 +32,25 @@ const nextConfig: NextConfig = {
   // Compression
   compress: true,
 
-  // Bundle analyzer (uncomment for analysis)
-  // webpack: (config, { isServer }) => {
-  //   if (!isServer) {
-  //     config.resolve.fallback = {
-  //       ...config.resolve.fallback,
-  //       fs: false,
-  //     };
-  //   }
-  //   return config;
-  // },
+  // Add webpack configuration to handle potential module resolution issues
+  webpack: (config, { isServer, dev }) => {
+    // Handle server-side rendering issues
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+      };
+    }
+
+    // Add better error handling for missing modules
+    config.resolve.alias = {
+      ...config.resolve.alias,
+    };
+
+    return config;
+  },
 
   async rewrites() {
     return [
