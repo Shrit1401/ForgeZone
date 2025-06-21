@@ -371,7 +371,12 @@ const BuildsCongoClient = React.memo(({ buildSlug }: { buildSlug: string }) => {
                 </div>
 
                 <div className="text-white/70 max-w-2xl mx-auto">
-                  <p className="italic">{getCertificateMessage(build.name)}</p>
+                  <p className="italic">
+                    {getCertificateMessage(
+                      user?.username || "Builder",
+                      build.name
+                    )}
+                  </p>
                 </div>
 
                 <div className="flex items-center justify-center gap-6 mt-6 pt-6 border-t border-white/10">
